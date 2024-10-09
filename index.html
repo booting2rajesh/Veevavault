@@ -70,41 +70,84 @@
         <img src="vault.png" alt="Logo">
     </div>
 
-    <!-- Search Box -->
+    
     <div class="search-box">
         <input type="text" id="searchInput" placeholder="Search...">
         <button onclick="validateInput()">Search</button>
     </div>
 
-    <!-- Error Message -->
+    
     <div class="error-message" id="errorMessage">
         This allows to find the object model of "QMS" Vault Only.
     </div>
 
     <script>
-        // Function to validate input when the button is clicked
+       
         function validateInput() {
             const input = document.getElementById("searchInput").value.trim().toUpperCase();
             const errorMessage = document.getElementById("errorMessage");
 
             if (input === "QMS") {
                 errorMessage.style.display = "none";
-                alert("Search successful!"); // You can replace this with your actual search functionality
+                alert("Search successful!"); 
             } else {
                 errorMessage.style.display = "block";
             }
         }
 
-        // Event listener to dynamically hide the error message when input is corrected
         document.getElementById("searchInput").addEventListener("input", function() {
             const input = this.value.trim().toUpperCase();
             const errorMessage = document.getElementById("errorMessage");
 
-            // Automatically hide error message if input becomes "QMS"
+           
             if (input === "QMS") {
                 errorMessage.style.display = "none";
             }
         });
+
+        async function fetchMetadata() {
+            try {
+                
+                const response = await fetch('https://partnersi-prana4life-quality.veevavault.com/api/v24.2/metadata/vobjects', {
+                    method: 'GET',
+                    headers: {
+                        'Authorization': 'Bearer 4C8684605C3D6B19E9DE2696B69332A770B2678584521AA63DD162C5A7745F38F96FBD5D95B1539C1862AF4E98CAC5806374A5415EC6DA1C986D8366D52CFB8A',  
+                        'Content-Type': 'application/json'
+                    }
+                });
+
+              
+                const data = await response.json();
+
+               
+                populateTable(data.data);
+            } catch (error) {
+                console.error('Error fetching metadata:', error);
+                alert('Failed to fetch metadata. Please check the console for details.');
+            }
+        }
+
+        function populateTable(objects) {
+            const table = document.getElementById('objectTable');
+            const tbody = table.querySelector('tbody');
+            tbody.innerHTML = ''; 
+
+            
+            objects.forEach(object => {
+                const row = tbody.insertRow();
+                const labelCell = row.insertCell(0);
+                const nameCell = row.insertCell(1);
+                const sourceCell = row.insertCell(2);
+
+                
+                labelCell.textContent = object.label || 'N/A';
+                nameCell.textContent = object.name || 'N/A';
+                sourceCell.textContent = object.source || 'N/A';
+            });
+
+          
+            table.style.display = 'table';
+        }
     </script>
 
 </body>
