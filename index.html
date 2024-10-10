@@ -3,152 +3,49 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Simple Search Page</title>
-    <style>
-        body {
-            display: flex;
-            flex-direction: column;
-            justify-content: center;
-            align-items: center;
-            height: 35vh;
-            margin: 0;
-            font-family: Arial, sans-serif;
-            background-color: #fff;
-        }
-        .logo {
-            margin-top: 50px;
-        }
-        .search-box {
-            display: flex;
-            width: 50%;
-            max-width: 600px;
-            margin-top: 35px;
-        }
-        .search-box input[type="text"] {
-            flex: 1;
-            padding: 10px 20px;
-            font-size: 16px;
-            border: 1px solid #dfe1e5;
-            border-radius: 24px 0 0 24px;
-            outline: none;
-        }
-        .search-box button {
-            padding: 0 20px;
-            border: 1px solid #dfe1e5;
-            border-left: none;
-            background-color: #f8f9fa;
-            cursor: pointer;
-            border-radius: 0 24px 24px 0;
-            font-size: 16px;
-        }
-        .buttons {
-            margin-top: 30px;
-        }
-        .buttons button {
-            margin: 0 20px;
-            padding: 10px 20px;
-            font-size: 14px;
-            border: 1px solid #f8f9fa;
-            background-color: #f8f9fa;
-            cursor: pointer;
-            border-radius: 4px;
-        }
-        .buttons button:hover {
-            box-shadow: 0 1px 1px rgba(0,0,0,0.1);
-        }
-        .error-message {
-            color: red;
-            font-size: 14px;
-            margin-top: 20px;
-            display: none;
-        }
-    </style>
+    <title>Veeva Vault Authentication</title>
 </head>
 <body>
-
-    <div class="logo">
-        <img src="vault.png" alt="Logo">
-    </div>
-
-    
-    <div class="search-box">
-        <input type="text" id="searchInput" placeholder="Search...">
-        <button onclick="validateInput()">Search</button>
-    </div>
-
-    
-    <div class="error-message" id="errorMessage">
-        This allows to find the object model of "QMS" Vault Only.
-    </div>
+    <h1>Get Veeva Vault Session ID</h1>
+    <button id="get-session-id">Get Session ID</button>
+    <p id="session-id-display"></p>
 
     <script>
-       
-        function validateInput() {
-            const input = document.getElementById("searchInput").value.trim().toUpperCase();
-            const errorMessage = document.getElementById("errorMessage");
+        const username = "prana.user4@partnersi-prana4life.com";
+        const password = "Prana4@2025!";
 
-            if (input === "QMS") {
-                errorMessage.style.display = "none";
-                alert("Search successful!"); 
-            } else {
-                errorMessage.style.display = "block";
-            }
-        }
-
-        document.getElementById("searchInput").addEventListener("input", function() {
-            const input = this.value.trim().toUpperCase();
-            const errorMessage = document.getElementById("errorMessage");
-
-           
-            if (input === "QMS") {
-                errorMessage.style.display = "none";
-            }
-        });
-
-        async function fetchMetadata() {
+        async function getSessionId() {
             try {
-                
-                const response = await fetch('https://partnersi-prana4life-quality.veevavault.com/api/v24.2/metadata/vobjects', {
-                    method: 'GET',
+                const response = await fetch("https://partnersi-prana4life-quality.veevavault.com/api/v24.2/auth", {
+                    method: "POST",  // Corrected HTTP method
                     headers: {
-                        'Authorization': 'Bearer FE3D978DAAED5D552C96AB3588BE329332A202C5FE9D63E48330D2EDFE66B02B1F4095017DD25EEE73D96D960081A6A428C7126ECB8227170C55A8398DE0B82B',  
-                        'Content-Type': 'application/json'
-                    }
+                        "Content-Type": "application/x-www-form-urlencoded"
+                    },
+                    body: new URLSearchParams({
+                        "username": username,
+                        "password": password
+                    })
                 });
 
-              
-                const data = await response.json();
+                if (response.ok) {
+                    const data = await response.json();
+                    console.log(data);
 
-               
-                populateTable(data.data);
+                    const sessionId = data.sessionId;  // Assuming 'sessionId' is the correct field
+
+                    // Display the session ID on the page
+                    document.getElementById("session-id-display").innerText = "Session ID: " + sessionId;
+                } else {
+                    console.error('Error:', response.statusText);
+                    document.getElementById("session-id-display").innerText = "Error: " + response.statusText;
+                }
             } catch (error) {
-                console.error('Error fetching metadata:', error);
-                alert('Failed to fetch metadata. Please check the console for details.');
+                console.error('Fetch error:', error);
+                document.getElementById("session-id-display").innerText = "Fetch Error: " + error.message;
             }
         }
 
-        function populateTable(objects) {
-            const table = document.getElementById('objectTable');
-            const tbody = table.querySelector('tbody');
-            tbody.innerHTML = ''; 
-
-            
-            objects.forEach(object => {
-                const row = tbody.insertRow();
-                const labelCell = row.insertCell(0);
-                const nameCell = row.insertCell(1);
-                const sourceCell = row.insertCell(2);
-
-                
-                labelCell.textContent = object.label || 'N/A';
-                nameCell.textContent = object.name || 'N/A';
-                sourceCell.textContent = object.source || 'N/A';
-            });
-
-          
-            table.style.display = 'table';
-        }
+        document.getElementById("get-session-id").addEventListener("click", getSessionId);
     </script>
-
 </body>
 </html>
