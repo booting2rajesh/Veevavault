@@ -3,49 +3,392 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Veeva Vault Authentication</title>
+    <title>Simple Search Page</title>
+    <style>
+        body {
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            height: auto; /* Adjusted height */
+            margin: 0;
+            font-family: Arial, sans-serif;
+            background-color: #fff;
+        }
+        .logo {
+            margin-top: 50px; /* Adjusted margin */
+        }
+        .search-box {
+            display: flex;
+            width: 50%;
+            max-width: 600px;
+            margin-top: 35px;
+        }
+        .search-box input[type="text"] {
+            flex: 1;
+            padding: 10px 20px;
+            font-size: 16px;
+            border: 1px solid #dfe1e5;
+            border-radius: 24px 0 0 24px;
+            outline: none;
+        }
+        .search-box button {
+            padding: 0 20px;
+            border: 1px solid #dfe1e5;
+            border-left: none;
+            background-color: #f8f9fa;
+            cursor: pointer;
+            border-radius: 0 24px 24px 0;
+            font-size: 16px;
+        }
+        .buttons {
+            margin-top: 30px;
+        }
+        .buttons button {
+            margin: 0 20px;
+            padding: 10px 20px;
+            font-size: 14px;
+            border: 1px solid #f8f9fa;
+            background-color: #f8f9fa;
+            cursor: pointer;
+            border-radius: 4px;
+        }
+        .buttons button:hover {
+            box-shadow: 0 1px 1px rgba(0,0,0,0.1);
+        }
+        .error-message {
+            color: red;
+            font-size: 14px;
+            margin-top: 20px;
+            display: none;
+        }
+        #loadingIndicator {
+            margin-top: 20px;
+            display: none;
+        }
+        .loader {
+            width: 48px;
+            height: 48px;
+            border-radius: 50%;
+            position: relative;
+            animation: rotate 1s linear infinite;
+        }
+        .loader::before, .loader::after {
+            content: "";
+            box-sizing: border-box;
+            position: absolute;
+            inset: 0px;
+            border-radius: 50%;
+            border: 5px solid #868789;
+            animation: prixClipFix 2s linear infinite;
+        }
+        .loader::after {
+            border-color: #f69a1b;
+            animation: prixClipFix 2s linear infinite, rotate 0.5s linear infinite reverse;
+            inset: 6px;
+        }
+        @keyframes rotate {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+        @keyframes prixClipFix {
+            0% { clip-path: polygon(50% 50%, 0 0, 0 0, 0 0, 0 0, 0 0); }
+            25% { clip-path: polygon(50% 50%, 0 0, 100% 0, 100% 0, 100% 0); }
+            50% { clip-path: polygon(50% 50%, 0 0, 100% 0, 100% 100%, 100% 100%, 100% 100%); }
+            75% { clip-path: polygon(50% 50%, 0 0, 100% 0, 100% 100%, 0 100%, 0 100%); }
+            100% { clip-path: polygon(50% 50%, 0 0, 100% 0, 100% 100%, 0 100%, 0 0); }
+        }
+        table {
+            width: 80%;
+            border-collapse: separate;
+            border-spacing: 0;
+            margin-top: 20px;
+            display: none; /* Initially hidden */
+            border-radius: 10px;
+            overflow: hidden;
+        }
+        th, td {
+            padding: 8px;
+        }
+        th {
+            background-color: #f69a1b;
+            font-weight: bold;
+            color: white; 
+            font-size: 18px;
+            font-family: 'Georgia', serif;
+letter-spacing: 0.5px;
+        }
+
+        /* Alternate row colors */
+        tbody tr:nth-child(even) {
+            background-color: #cfcccc; /* Light grey for even rows */
+letter-spacing: 0.5px;
+            font-family: 'Georgia', serif;
+        }
+
+        tbody tr:nth-child(odd) {
+            background-color: #ffffff; /* White for odd rows */
+            font-family: 'Georgia', serif;
+letter-spacing: 0.5px;
+        }
+
+        /* Optional: Remove bottom border from last row to create a cleaner look */
+        tr:last-child td {
+            border-bottom: none;
+        }
+
+        .total-objects {
+ text-align: left;
+            background-color: #f69a1b; /* Orange color */
+            color: white; /* White text */
+            border: none;
+            padding: 8px 16px;
+            border-radius: 5px;
+            margin-top: 20px;
+            cursor: default; /* No pointer for static label */
+            font-size: 17px;
+            font-family: 'Georgia', serif;
+width: 600px;
+letter-spacing: 0.5px;
+        }
+
+        /* Style for suffix count buttons */
+        .suffix-count-button {
+text-align: left;
+            background-color: #f69a1b; /* Orange color */
+            color: white;
+            border: none;
+            padding: 8px 16px;
+            border-radius: 5px;
+            margin-top: 10px;
+            cursor: default; /* No pointer */
+            font-size: 17px;
+            font-family: 'Georgia', serif;
+width: 600px;
+letter-spacing: 0.5px;
+        }
+    </style>
 </head>
 <body>
-    <h1>Get Veeva Vault Session ID</h1>
-    <button id="get-session-id">Get Session ID</button>
-    <p id="session-id-display"></p>
+
+    <div class="logo">
+        <img src="vault.png" alt="Logo" width="222" height="68">
+    </div>
+
+    <div class="search-box">
+        <input type="text" id="searchInput" placeholder="Search...">
+        <button id="searchButton">Search</button>
+    </div>
+
+    <button id="totalObjectsButton" class="total-objects" style="display:none;">
+        Total Number Objects present in Quality Vault is: 0
+    </button>
+
+    <!-- Suffix Counts as buttons -->
+    <button id="sysCountButton" class="suffix-count-button" style="display:none;">
+        System Specific Objects: 0
+    </button>
+    <button id="cCountButton" class="suffix-count-button" style="display:none;">
+        Custom Specific Objects: 0
+    </button>
+    <button id="vCountButton" class="suffix-count-button" style="display:none;">
+        Application Specific Objects: 0
+    </button>
+
+    <div class="error-message" id="errorMessage">
+         This Search will fetch object model of "QMS" Vault Only.
+    </div>
+
+    <!-- Loading Indicator with Spinner -->
+    <div id="loadingIndicator" style="display: none;">
+        <div class="loader"></div>
+    </div>
+
+    <!-- Results Table -->
+    <table id="resultsTable">
+        <thead>
+            <tr>
+                <th>Label</th>
+                <th>Name</th>
+            </tr>
+        </thead>
+        <tbody id="resultsBody">
+            <!-- Rows will be populated here -->
+        </tbody>
+    </table>
 
     <script>
-        const username = "prana.user4@partnersi-prana4life.com";
-        const password = "Prana4@2025!";
-
-        async function getSessionId() {
-            try {
-                const response = await fetch("https://partnersi-prana4life-quality.veevavault.com/api/v24.2/auth", {
-                    method: "POST",  // Corrected HTTP method
-                    headers: {
-                        "Content-Type": "application/x-www-form-urlencoded"
-                    },
-                    body: new URLSearchParams({
-                        "username": username,
-                        "password": password
-                    })
-                });
-
-                if (response.ok) {
-                    const data = await response.json();
-                    console.log(data);
-
-                    const sessionId = data.sessionId;  // Assuming 'sessionId' is the correct field
-
-                    // Display the session ID on the page
-                    document.getElementById("session-id-display").innerText = "Session ID: " + sessionId;
-                } else {
-                    console.error('Error:', response.statusText);
-                    document.getElementById("session-id-display").innerText = "Error: " + response.statusText;
-                }
-            } catch (error) {
-                console.error('Fetch error:', error);
-                document.getElementById("session-id-display").innerText = "Fetch Error: " + error.message;
+        // Debounce Function
+        function debounce(func, delay) {
+            let debounceTimer;
+            return function() {
+                const context = this;
+                const args = arguments;
+                clearTimeout(debounceTimer);
+                debounceTimer = setTimeout(() => func.apply(context, args), delay);
             }
         }
 
-        document.getElementById("get-session-id").addEventListener("click", getSessionId);
+        // Attach Debounced Input Event
+        document.getElementById("searchInput").addEventListener("input", debounce(function() {
+            const input = this.value.trim().toUpperCase();
+            const errorMessage = document.getElementById("errorMessage");
+
+            if (input === "QMS") {
+                errorMessage.style.display = "none"; // Hide error message if "QMS" is typed
+            } else {
+                errorMessage.style.display = "block"; // Show error message for any other input
+            }
+        }, 300));
+
+        // Attach Keydown Event Listener for Enter Key
+        document.getElementById("searchInput").addEventListener("keydown", (event) => {
+            if (event.key === 'Enter') {
+                event.preventDefault(); // Prevent the default form submission
+                document.getElementById("searchButton").click(); // Trigger the search button click
+            }
+        });
+
+        // Attach Click Event Listener
+        document.getElementById("searchButton").addEventListener("click", async () => {
+            await validateInput();
+        });
+
+        // Asynchronous Validate Input Function
+        async function validateInput() {
+            const input = document.getElementById("searchInput").value.trim().toUpperCase();
+            const errorMessage = document.getElementById("errorMessage");
+
+            if (input === "QMS") {
+                errorMessage.style.display = "none"; // Hide error message
+                await fetchMetadata(); // Fetch metadata for "QMS"
+            } else {
+                errorMessage.style.display = "block"; // Show error message
+            }
+        }
+
+        async function fetchMetadata() {
+            const username = 'prana.user4@partnersi-prana4life.com'; 
+            const password = 'Prana4@2025!'; 
+
+            const formData = new URLSearchParams();
+            formData.append('username', username);
+            formData.append('password', password);
+
+            // Show loading indicator
+            document.getElementById("loadingIndicator").style.display = "block";
+
+            try {
+                // Authenticate and get sessionId
+                const authResponse = await fetch('https://cors-anywhere.herokuapp.com/https://partnersi-prana4life-quality.veevavault.com/api/v24.2/auth', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/x-www-form-urlencoded',
+                        'X-Requested-With': 'XMLHttpRequest' // Added header
+                    },
+                    body: formData
+                });
+
+                const authData = await authResponse.json();
+                console.log('Auth Response Data:', authData);
+                const sessionId = authData.sessionId;
+
+                // Check if sessionId was returned
+                if (!sessionId) {
+                    throw new Error('Failed to obtain session ID.');
+                }
+
+                // Fetch metadata using the sessionId
+                const metadataResponse = await fetch('https://cors-anywhere.herokuapp.com/https://partnersi-prana4life-quality.veevavault.com/api/v24.2/metadata/vobjects', {
+                    method: 'GET',
+                    headers: {
+                        'Authorization': sessionId,
+                        'Accept': 'application/json',
+                        'X-Requested-With': 'XMLHttpRequest' // Added header
+                    }
+                });
+
+                const metadataData = await metadataResponse.json();
+                console.log('Metadata Data:', metadataData);
+
+                // Check if the response structure matches expectations
+                if (!metadataData || !metadataData.objects) {
+                    throw new Error('Invalid metadata response structure.');
+                }
+
+                // Filter objects ending with __sys, __c, __v
+                const filteredObjects = metadataData.objects.filter(object =>
+                    object.name.endsWith('__sys') ||
+                    object.name.endsWith('__c') ||
+                    object.name.endsWith('__v')
+                );
+
+                // Display the results
+                displayResults(filteredObjects);
+
+                // Update suffix counts
+                updateSuffixCounts(filteredObjects);
+
+            } catch (error) {
+                console.error('Error fetching metadata:', error);
+                // Optionally, display the error message to the user
+                document.getElementById("errorMessage").innerText = `Error: ${error.message}`;
+                document.getElementById("errorMessage").style.display = "block";
+            } finally {
+                // Hide loading indicator
+                document.getElementById("loadingIndicator").style.display = "none";
+            }
+        }
+
+        function displayResults(objects) {
+            const table = document.getElementById("resultsTable");
+            const tbody = document.getElementById("resultsBody");
+
+            tbody.innerHTML = ''; // Clear any previous content
+
+            objects.forEach(object => {
+                const row = document.createElement("tr");
+
+                const labelCell = document.createElement("td");
+                labelCell.textContent = object.label;
+
+                const nameCell = document.createElement("td");
+                nameCell.textContent = object.name;
+
+                row.appendChild(labelCell);
+                row.appendChild(nameCell);
+                tbody.appendChild(row);
+            });
+
+            // Show the table if there are results
+            table.style.display = objects.length > 0 ? 'table' : 'none';
+
+            // Update and show the total objects button
+            const totalObjectsButton = document.getElementById("totalObjectsButton");
+            totalObjectsButton.textContent = `Total Number of Objects present in Quality Vault is: ${objects.length}`;
+            totalObjectsButton.style.display = 'inline-block';
+        }
+
+        function updateSuffixCounts(objects) {
+            const sysCount = objects.filter(obj => obj.name.endsWith('__sys')).length;
+            const cCount = objects.filter(obj => obj.name.endsWith('__c')).length;
+            const vCount = objects.filter(obj => obj.name.endsWith('__v')).length;
+
+            // Update buttons
+            const sysCountButton = document.getElementById("sysCountButton");
+            const cCountButton = document.getElementById("cCountButton");
+            const vCountButton = document.getElementById("vCountButton");
+
+            sysCountButton.textContent = `System Specific Objects: ${sysCount}`;
+            cCountButton.textContent = `Custom Specific Objects: ${cCount}`;
+            vCountButton.textContent = `Application Specific Objects: ${vCount}`;
+
+            // Show buttons
+            sysCountButton.style.display = 'inline-block';
+            cCountButton.style.display = 'inline-block';
+            vCountButton.style.display = 'inline-block';
+        }
     </script>
+
 </body>
 </html>
