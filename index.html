@@ -1,8 +1,7 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
- <link rel="icon" href="favicon.ico" type="image/x-icon">
-
+    <link rel="icon" href="favicon.ico" type="image/x-icon">
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>QMS Object Search</title>
@@ -10,21 +9,20 @@
         body {
             display: flex;
             flex-direction: column;
-            justify-content: center;
             align-items: center;
-            height: auto; /* Adjusted height */
+            padding: 20px;
             margin: 0;
             font-family: Arial, sans-serif;
             background-color: #fff;
         }
         .logo {
-            margin-top: 50px; /* Adjusted margin */
+            margin-top: 20px;
         }
         .search-box {
             display: flex;
-            width: 50%;
+            width: 100%;
             max-width: 600px;
-            margin-top: 35px;
+            margin-top: 20px;
         }
         .search-box input[type="text"] {
             flex: 1;
@@ -43,26 +41,12 @@
             border-radius: 0 24px 24px 0;
             font-size: 16px;
         }
-        .buttons {
-            margin-top: 30px;
-        }
-        .buttons button {
-            margin: 0 20px;
-            padding: 10px 20px;
-            font-size: 14px;
-            border: 1px solid #f8f9fa;
-            background-color: #f8f9fa;
-            cursor: pointer;
-            border-radius: 4px;
-        }
-        .buttons button:hover {
-            box-shadow: 0 1px 1px rgba(0,0,0,0.1);
-        }
         .error-message {
             color: red;
             font-size: 14px;
-            margin-top: 20px;
+            margin-top: 10px;
             display: none;
+            text-align: center;
         }
         #loadingIndicator {
             margin-top: 20px;
@@ -101,17 +85,29 @@
             100% { clip-path: polygon(50% 50%, 0 0, 100% 0, 100% 100%, 0 100%, 0 0); }
         }
         table {
-            width: 80%;
+            width: 96%;
+            
             border-collapse: separate;
             border-spacing: 0;
+			 max-width: 1300px;
+    table-layout: fixed; /* This will enforce fixed layout */
             margin-top: 6px;
             display: none; /* Initially hidden */
             border-radius: 10px;
             overflow: hidden;
-			 box-shadow: 0 4px 8px rgba(0, 0, 0, 0.4); /* Shadow effect */
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.4); /* Shadow effect */
         }
+	
         th, td {
-            padding: 8px;
+		 
+		  border-right: 1px solid #ffffff; 
+            padding: 12px 15px;
+            text-align: center;
+ word-wrap: break-word; /* Allows long words to break onto the next line */
+    overflow: hidden; /* Prevents overflow of content */
+    white-space: normal; /* Ensures text can wrap */
+                    
+		  border-bottom: 1px solid #ddd;
         }
         th {
             background-color: #f69a1b;
@@ -119,56 +115,64 @@
             color: white; 
             font-size: 18px;
             font-family: 'Georgia', serif;
-letter-spacing: 0.5px;
+            letter-spacing: 0.5px;
         }
 
         /* Alternate row colors */
         tbody tr:nth-child(even) {
             background-color: #cfcccc; /* Light grey for even rows */
-letter-spacing: 0.5px;
             font-family: 'Georgia', serif;
-        }
+            letter-spacing: 0.5px;
+ font-size: 18px;
+           
+ }
 
         tbody tr:nth-child(odd) {
             background-color: #ffffff; /* White for odd rows */
             font-family: 'Georgia', serif;
-letter-spacing: 0.5px;
+ font-size: 18px;
+                    
+		  letter-spacing: 0.5px;
         }
 
         /* Optional: Remove bottom border from last row to create a cleaner look */
         tr:last-child td {
             border-bottom: none;
+			 border-right: none; 
         }
 
-        .total-objects {
- text-align: left;
-            background-color: #f69a1b; /* Orange color */
-            color: white; /* White text */
-            border: none;
-            padding: 8px 16px;
-            border-radius: 5px;
-            margin-top: 12px;
-            cursor: default; /* No pointer for static label */
+        /* Summary Section */
+        .summary-section {
+            display: flex;
+            width: 100%;
+            max-width: 600px;
             font-size: 17px;
-            font-family: 'Georgia', serif;
-width: 600px;
-letter-spacing: 0.5px;
+            
+           
+            
+			text-align: left;
         }
-
-        /* Style for suffix count buttons */
-        .suffix-count-button {
-text-align: left;
+        .summary-section h2 {
+            font-family: 'Georgia', serif;
+            color: #333;
+            
+            letter-spacing: 0.5px;
+			margin-bottom: 10px;
+			}
+        .summary-buttons button {
+            width: 600px;
+			 margin-top: 1px;    /* Increased top margin */
+    margin-bottom: 1px; /* Increased bottom margin */
+            font-size: 18px;
+            padding: 10px 20px;
+            
+            border: none;
             background-color: #f69a1b; /* Orange color */
             color: white;
-            border: none;
-            padding: 8px 16px;
             border-radius: 5px;
-            margin-top: 1px;
             cursor: default; /* No pointer */
-            font-size: 17px;
             font-family: 'Georgia', serif;
-width: 600px;
-letter-spacing: 0.5px;
+            letter-spacing: 0.5px;
         }
     </style>
 </head>
@@ -183,21 +187,27 @@ letter-spacing: 0.5px;
         <button id="searchButton">Search</button>
     </div>
 
-    <button id="totalObjectsButton" class="total-objects" style="display:none;">
-
-        Total Number Objects present in Quality Vault is: 0
-    </button>
-
-    <!-- Suffix Counts as buttons -->
-    <button id="sysCountButton" class="suffix-count-button" style="display:none;">
-        System Specific Objects: 0
-    </button>
-    <button id="cCountButton" class="suffix-count-button" style="display:none;">
-        Custom Specific Objects: 0
-    </button>
-    <button id="vCountButton" class="suffix-count-button" style="display:none;">
-        Application Specific Objects: 0
-    </button>
+    <!-- Summary Section -->
+    <div class="summary-section" id="summarySection" style="display: none;">
+        <h2>Summary:</h2>
+        <div class="summary-buttons">
+            <button id="totalObjectsButton">
+                Total Number of Objects in Quality Vault: 0
+            </button>
+            <button id="systemObjectsButton">
+                System Objects: 0
+            </button>
+            <button id="standardVaultObjectsButton">
+                Standard Vault Objects: 0
+            </button>
+            <button id="applicationSpecificObjectsButton">
+                Application Specific Objects: 0
+            </button>
+            <button id="customObjectsButton">
+                Custom Objects: 0
+            </button>
+        </div>
+    </div>
 
     <div class="error-message" id="errorMessage">
         This Search will fetch object model of "QMS" Vault Only.
@@ -212,8 +222,10 @@ letter-spacing: 0.5px;
     <table id="resultsTable">
         <thead>
             <tr>
-                <th>Label</th>
-                <th>Name</th>
+                <th>System Objects</th>
+                <th>Standard Vault Objects</th>
+                <th>Application Specific Objects</th>
+                <th>Custom Objects</th>
             </tr>
         </thead>
         <tbody id="resultsBody">
@@ -293,6 +305,10 @@ letter-spacing: 0.5px;
                     body: formData
                 });
 
+                if (!authResponse.ok) {
+                    throw new Error(`Authentication failed with status ${authResponse.status}`);
+                }
+
                 const authData = await authResponse.json();
                 console.log('Auth Response Data:', authData);
                 const sessionId = authData.sessionId;
@@ -312,6 +328,10 @@ letter-spacing: 0.5px;
                     }
                 });
 
+                if (!metadataResponse.ok) {
+                    throw new Error(`Metadata fetch failed with status ${metadataResponse.status}`);
+                }
+
                 const metadataData = await metadataResponse.json();
                 console.log('Metadata Data:', metadataData);
 
@@ -320,18 +340,17 @@ letter-spacing: 0.5px;
                     throw new Error('Invalid metadata response structure.');
                 }
 
-                // Filter objects ending with __sys, __c, __v
-                const filteredObjects = metadataData.objects.filter(object =>
-                    object.name.endsWith('__sys') ||
-                    object.name.endsWith('__c') ||
-                    object.name.endsWith('__v')
-                );
+                // Categorize objects based on suffix
+                const systemObjects = metadataData.objects.filter(obj => obj.name.endsWith('__sys'));
+                const standardVaultObjects = metadataData.objects.filter(obj => obj.name.endsWith('__v'));
+                const applicationSpecificObjects = metadataData.objects.filter(obj => obj.name.endsWith('__qdm'));
+                const customObjects = metadataData.objects.filter(obj => obj.name.endsWith('__c'));
 
-                // Display the results
-                displayResults(filteredObjects);
+                // Display the results in the table
+                displayResults(systemObjects, standardVaultObjects, applicationSpecificObjects, customObjects);
 
-                // Update suffix counts
-                updateSuffixCounts(filteredObjects);
+                // Update summary buttons
+                updateSummaryButtons(systemObjects.length, standardVaultObjects.length, applicationSpecificObjects.length, customObjects.length);
 
             } catch (error) {
                 console.error('Error fetching metadata:', error);
@@ -344,53 +363,72 @@ letter-spacing: 0.5px;
             }
         }
 
-        function displayResults(objects) {
+        function displayResults(systemObjects, standardVaultObjects, applicationSpecificObjects, customObjects) {
             const table = document.getElementById("resultsTable");
             const tbody = document.getElementById("resultsBody");
 
             tbody.innerHTML = ''; // Clear any previous content
 
-            objects.forEach(object => {
+            // Determine the maximum number of rows needed
+            const maxRows = Math.max(systemObjects.length, standardVaultObjects.length, applicationSpecificObjects.length, customObjects.length);
+
+            for (let i = 0; i < maxRows; i++) {
                 const row = document.createElement("tr");
 
-                const labelCell = document.createElement("td");
-                labelCell.textContent = object.label;
+                // System Objects
+                const sysCell = document.createElement("td");
+                sysCell.textContent = systemObjects[i] ? systemObjects[i].name : '';
+                row.appendChild(sysCell);
 
-                const nameCell = document.createElement("td");
-                nameCell.textContent = object.name;
+                // Standard Vault Objects
+                const stdCell = document.createElement("td");
+                stdCell.textContent = standardVaultObjects[i] ? standardVaultObjects[i].name : '';
+                row.appendChild(stdCell);
 
-                row.appendChild(labelCell);
-                row.appendChild(nameCell);
+                // Application Specific Objects
+                const appCell = document.createElement("td");
+                appCell.textContent = applicationSpecificObjects[i] ? applicationSpecificObjects[i].name : '';
+                row.appendChild(appCell);
+
+                // Custom Objects
+                const custCell = document.createElement("td");
+                custCell.textContent = customObjects[i] ? customObjects[i].name : '';
+                row.appendChild(custCell);
+
                 tbody.appendChild(row);
-            });
+            }
 
-            // Show the table if there are results
-            table.style.display = objects.length > 0 ? 'table' : 'none';
-
-            // Update and show the total objects button
-            const totalObjectsButton = document.getElementById("totalObjectsButton");
-            totalObjectsButton.textContent = `Total Number of Objects present in Quality Vault is: ${objects.length}`;
-            totalObjectsButton.style.display = 'inline-block';
+            // Show the table if there are any results
+            const hasResults = systemObjects.length > 0 || standardVaultObjects.length > 0 || applicationSpecificObjects.length > 0 || customObjects.length > 0;
+            table.style.display = hasResults ? 'table' : 'none';
         }
 
-        function updateSuffixCounts(objects) {
-            const sysCount = objects.filter(obj => obj.name.endsWith('__sys')).length;
-            const cCount = objects.filter(obj => obj.name.endsWith('__c')).length;
-            const vCount = objects.filter(obj => obj.name.endsWith('__v')).length;
+        function updateSummaryButtons(systemCount, standardVaultCount, applicationSpecificCount, customCount) {
+            const totalCount = systemCount + standardVaultCount + applicationSpecificCount + customCount;
 
-            // Update buttons
-            const sysCountButton = document.getElementById("sysCountButton");
-            const cCountButton = document.getElementById("cCountButton");
-            const vCountButton = document.getElementById("vCountButton");
+            // Show the summary section
+            const summarySection = document.getElementById("summarySection");
+            summarySection.style.display = 'block';
 
-            sysCountButton.textContent = `System Specific Objects: ${sysCount}`;
-            cCountButton.textContent = `Custom Specific Objects: ${cCount}`;
-            vCountButton.textContent = `Application Specific Objects: ${vCount}`;
+            // Update Total Objects Button
+            const totalObjectsButton = document.getElementById("totalObjectsButton");
+            totalObjectsButton.textContent = `Total Number of Objects in Quality Vault: ${totalCount}`;
 
-            // Show buttons
-            sysCountButton.style.display = 'inline-block';
-            cCountButton.style.display = 'inline-block';
-            vCountButton.style.display = 'inline-block';
+            // Update System Objects Button
+            const systemObjectsButton = document.getElementById("systemObjectsButton");
+            systemObjectsButton.textContent = `System Objects: ${systemCount}`;
+
+            // Update Standard Vault Objects Button
+            const standardVaultObjectsButton = document.getElementById("standardVaultObjectsButton");
+            standardVaultObjectsButton.textContent = `Standard Vault Objects: ${standardVaultCount}`;
+
+            // Update Application Specific Objects Button
+            const applicationSpecificObjectsButton = document.getElementById("applicationSpecificObjectsButton");
+            applicationSpecificObjectsButton.textContent = `Application Specific Objects: ${applicationSpecificCount}`;
+
+            // Update Custom Objects Button
+            const customObjectsButton = document.getElementById("customObjectsButton");
+            customObjectsButton.textContent = `Custom Objects: ${customCount}`;
         }
     </script>
 
