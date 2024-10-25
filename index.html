@@ -1,436 +1,525 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <link rel="icon" href="favicon.ico" type="image/x-icon">
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>QMS Object Search</title>
+    <link href="https://fonts.googleapis.com/css?family=Source+Sans+Pro:400,300,600" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/ionicons/2.0.1/css/ionicons.min.css">
     <style>
+        /* Basic reset and body styling */
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
         body {
+            font-family: 'Source Sans Pro', sans-serif;
+            background-color: #fefefe;
+        }
+
+        /* Landing Page Centered Style */
+        .landing-page {
             display: flex;
             flex-direction: column;
+            justify-content: center;
             align-items: center;
-            padding: 20px;
-            margin: 0;
-            font-family: Arial, sans-serif;
-            background-color: #fff;
+            height: 100vh;
+            text-align: center;
         }
-        .logo {
-            margin-top: 20px;
+
+        .landing-logo img {
+            width: 200px;
         }
-        .search-box {
+
+        .landing-search-box {
             display: flex;
-            width: 100%;
-            max-width: 600px;
-            margin-top: 20px;
+            align-items: center;
+            margin-top: 30px;
         }
-        .search-box input[type="text"] {
-            flex: 1;
-            padding: 10px 20px;
-            font-size: 16px;
+
+        .landing-search-box input[type="text"] {
+            width: 600px;
+            padding: 15px 20px;
+            font-size: 1.2em;
             border: 1px solid #dfe1e5;
             border-radius: 24px 0 0 24px;
             outline: none;
         }
-        .search-box button {
-            padding: 0 20px;
+
+        .landing-search-box button {
+            padding: 15px 20px;
             border: 1px solid #dfe1e5;
             border-left: none;
             background-color: #f8f9fa;
             cursor: pointer;
             border-radius: 0 24px 24px 0;
-            font-size: 16px;
+            font-size: 1.2em;
+            transition: background-color 0.3s;
         }
-        .error-message {
-            color: red;
-            font-size: 14px;
-            margin-top: 10px;
+
+        .landing-search-box button:hover {
+            background-color: #e0e0e0;
+        }
+
+        /* Search Results Page Layout */
+        .search-results {
             display: none;
-            text-align: center;
-        }
-        #loadingIndicator {
-            margin-top: 20px;
-            display: none;
-        }
-        .loader {
-            width: 48px;
-            height: 48px;
-            border-radius: 50%;
-            position: relative;
-            animation: rotate 1s linear infinite;
-        }
-        .loader::before, .loader::after {
-            content: "";
-            box-sizing: border-box;
-            position: absolute;
-            inset: 0px;
-            border-radius: 50%;
-            border: 5px solid #868789;
-            animation: prixClipFix 2s linear infinite;
-        }
-        .loader::after {
-            border-color: #f69a1b;
-            animation: prixClipFix 2s linear infinite, rotate 0.5s linear infinite reverse;
-            inset: 6px;
-        }
-        @keyframes rotate {
-            0% { transform: rotate(0deg); }
-            100% { transform: rotate(360deg); }
-        }
-        @keyframes prixClipFix {
-            0% { clip-path: polygon(50% 50%, 0 0, 0 0, 0 0, 0 0, 0 0); }
-            25% { clip-path: polygon(50% 50%, 0 0, 100% 0, 100% 0, 100% 0); }
-            50% { clip-path: polygon(50% 50%, 0 0, 100% 0, 100% 100%, 100% 100%, 100% 100%); }
-            75% { clip-path: polygon(50% 50%, 0 0, 100% 0, 100% 100%, 0 100%, 0 100%); }
-            100% { clip-path: polygon(50% 50%, 0 0, 100% 0, 100% 100%, 0 100%, 0 0); }
-        }
-        table {
-            width: 96%;
-            
-            border-collapse: separate;
-            border-spacing: 0;
-			 max-width: 1300px;
-    table-layout: fixed; /* This will enforce fixed layout */
-            margin-top: 6px;
-            display: none; /* Initially hidden */
-            border-radius: 10px;
-            overflow: hidden;
-            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.4); /* Shadow effect */
-        }
-	
-        th, td {
-		 
-		  border-right: 1px solid #ffffff; 
-            padding: 12px 15px;
-            text-align: center;
- word-wrap: break-word; /* Allows long words to break onto the next line */
-    overflow: hidden; /* Prevents overflow of content */
-    white-space: normal; /* Ensures text can wrap */
-                    
-		  border-bottom: 1px solid #ddd;
-        }
-        th {
-            background-color: #f69a1b;
-            font-weight: bold;
-            color: white; 
-            font-size: 18px;
-            font-family: 'Georgia', serif;
-            letter-spacing: 0.5px;
+            padding: 20px;
         }
 
-        /* Alternate row colors */
-        tbody tr:nth-child(even) {
-            background-color: #cfcccc; /* Light grey for even rows */
-            font-family: 'Georgia', serif;
-            letter-spacing: 0.5px;
- font-size: 18px;
-           
- }
-
-        tbody tr:nth-child(odd) {
-            background-color: #ffffff; /* White for odd rows */
-            font-family: 'Georgia', serif;
- font-size: 18px;
-                    
-		  letter-spacing: 0.5px;
-        }
-
-        /* Optional: Remove bottom border from last row to create a cleaner look */
-        tr:last-child td {
-            border-bottom: none;
-			 border-right: none; 
-        }
-
-        /* Summary Section */
-        .summary-section {
+        .top-bar {
             display: flex;
-            width: 100%;
-            max-width: 600px;
-            font-size: 17px;
-            
-           
-            
-			text-align: left;
+            align-items: center;
+            margin-left: 20px;
         }
-        .summary-section h2 {
-            font-family: 'Georgia', serif;
-            color: #333;
-            
-            letter-spacing: 0.5px;
-			margin-bottom: 10px;
-			}
-        .summary-buttons button {
-            width: 600px;
-			 margin-top: 1px;    /* Increased top margin */
-    margin-bottom: 1px; /* Increased bottom margin */
-            font-size: 18px;
+
+        .top-bar-logo img {
+            width: 80px;
+        }
+
+        .top-bar-search-box {
+            display: flex;
+            align-items: center;
+            margin-left: 20px;
+        }
+
+        .top-bar-search-box input[type="text"] {
+            width: 450px;
             padding: 10px 20px;
-            
-            border: none;
-            background-color: #f69a1b; /* Orange color */
-            color: white;
-            border-radius: 5px;
-            cursor: default; /* No pointer */
-            font-family: 'Georgia', serif;
-            letter-spacing: 0.5px;
+            font-size: 1em;
+            border: 1px solid #dfe1e5;
+            border-radius: 24px 0 0 24px;
+            outline: none;
         }
+
+        .top-bar-search-box button {
+            padding: 10px 20px;
+            border: 1px solid #dfe1e5;
+            border-left: none;
+            background-color: #f8f9fa;
+            cursor: pointer;
+            border-radius: 0 24px 24px 0;
+            font-size: 1em;
+            transition: background-color 0.3s;
+        }
+
+        .filter-tabs {
+            display: flex;
+            justify-content: left;
+            margin-left: 120px;
+            margin-top: 20px;
+        }
+
+        .filter-tabs a {
+            padding: 10px 15px;
+            margin: 0 5px;
+            color: #333;
+            font-size: 1em;
+            border-bottom: 2px solid transparent;
+            text-decoration: none;
+            cursor: pointer;
+        }
+
+        .filter-tabs a.active {
+            border-bottom: 2px solid #fc9918;
+        }
+
+        .filter-divider {
+            margin: 10px 0;
+            border: 0;
+            border-top: 1px solid #ccc;
+            width: 100vw;
+            position: relative;
+            left: 50%;
+            right: 50%;
+            margin-left: -50vw;
+        }
+
+        .results-section {
+            margin-top: 20px;
+            padding: 20px;
+        }
+
+        .results-section h3 {
+            color: #555;
+            font-size: 1.2em;
+        }
+
+        .result-item {
+            margin-bottom: 20px;
+            padding: 15px;
+            border-bottom: 1px solid #dfe1e5;
+			line-height: 29px;
+			font-size: 20px;
+        }
+
+        .result-item h4 {
+            color: #333;
+            font-size: 1.1em;
+        }
+
+        .result-item p {
+            color: #666;
+            font-size: 0.9em;
+        }
+
+        /* Add styles for debugging */
+        #jsonDisplay {
+            width: 100%;
+            height: 50px;
+            margin-top: 20px;
+            font-size: 12px;
+            display: none; /* Hide initially */
+        }
+
+
+   .view-document-button {
+            background-color: #007bff; /* Button color */
+            color: white; /* Text color */
+            border: none; /* Remove border */
+            padding: 10px 20px; /* Padding */
+            border-radius: 5px; /* Rounded corners */
+            cursor: pointer; /* Pointer cursor */
+			margin-top:10px;
+        }
+
+        .view-document-button:hover {
+            background-color: #0056b3; /* Darker shade on hover */
+        }
+
+        
+        /* Example styles for results container */
+        #searchResultsContainer {
+            margin: 20px; /* Adds some margin for spacing */
+        }
+
+
+        #errorMessage {
+            color: red;
+            display: none;
+            margin-top: 10px;
+        }
+		
+			.loader {
+    width: 40px;
+    height: 40px;
+    --c: no-repeat linear-gradient(orange 0 0);
+    background: var(--c), var(--c), var(--c), var(--c);
+    background-size: 21px 21px;
+    animation: l5 1.5s infinite cubic-bezier(0.3, 1, 0, 1);
+    position: fixed;       /* Fix position to keep it centered */
+    top: 50%;              /* Center vertically */
+    left: 50%;             /* Center horizontally */
+    transform: translate(-50%, -50%); /* Offset by half width and height to center */
+    display: none; /* Hide by default */
+    z-index: 1000; /* Ensure it appears on top of other elements */
+}
+
+.loader-container {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100vw;
+    height: 100vh;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    background: rgba(255, 255, 255, 0.8); /* Optional background overlay */
+    z-index: 1000;
+}
+
+        .show-loader {
+            display: block; /* Show loader when class added */
+        }
+
+        @keyframes l5 {
+            0% { background-position: 0 0, 100% 0, 100% 100%, 0 100% }
+            33% { background-position: 0 0, 100% 0, 100% 100%, 0 100%; width:60px; height: 60px }
+            66% { background-position: 100% 0, 100% 100%, 0 100%, 0 0; width:60px; height: 60px }
+            100% { background-position: 100% 0, 100% 100%, 0 100%, 0 0 }
+        }
+		
+		
     </style>
 </head>
 <body>
 
-    <div class="logo">
-        <img src="vault.png" alt="Logo" width="222" height="68">
-    </div>
-
-    <div class="search-box">
-        <input type="text" id="searchInput" placeholder="Search...">
-        <button id="searchButton">Search</button>
-    </div>
-
-    <!-- Summary Section -->
-    <div class="summary-section" id="summarySection" style="display: none;">
-        <h2>Summary:</h2>
-        <div class="summary-buttons">
-            <button id="totalObjectsButton">
-                Total Number of Objects in Quality Vault: 0
-            </button>
-            <button id="systemObjectsButton">
-                System Objects: 0
-            </button>
-            <button id="standardVaultObjectsButton">
-                Standard Vault Objects: 0
-            </button>
-            <button id="applicationSpecificObjectsButton">
-                Application Specific Objects: 0
-            </button>
-            <button id="customObjectsButton">
-                Custom Objects: 0
-            </button>
+ <div class="loader"></div>
+ 
+ <div id="content">
+    <!-- Landing Page -->
+    <div class="landing-page" id="landingPage">
+        <div class="landing-logo">
+            <img src="vault.png" alt="Logo">
+        </div>
+        <div class="landing-search-box">
+            <input type="text" id="landingSearchInput" placeholder="Search...">
+            <button onclick="startSearch()">Search</button>
+			
         </div>
     </div>
 
-    <div class="error-message" id="errorMessage">
-        This Search will fetch object model of "QMS" Vault Only.
+    <!-- Search Results Page -->
+    <div class="search-results" id="searchResultsPage">
+        <div class="top-bar">
+            <div class="top-bar-logo">
+                <img src="vault.png" alt="Logo">
+            </div>
+			
+			
+            <div class="top-bar-search-box">
+                <input type="text" id="topSearchInput" placeholder="Search...">
+                <button id="searchButton" onclick="handleSearch()">Search</button>
+            </div>
+        </div>
+		
+
+
+        <!-- Filter Tabs -->
+    
+		
+		<div class="filter-tabs">
+    <a class="active" id="allTab" onclick="filterResults('all')">All</a>
+    <a id="nameTab" onclick="filterResults('name')">Name</a>
+    <a id="fileNameTab" onclick="filterResults('fileName')">File Name</a>
+    <a id="lifecycleTab" onclick="filterResults('lifecycle')">Life Cycle</a>
+    <a id="docTypeTab" onclick="filterResults('docType')">Type</a>
+    <a id="docSubTypeTab" onclick="filterResults('docSubType')">Sub Type</a>
+    <a id="docClassifyTab" onclick="filterResults('docClassify')">Classification</a>
+</div>
+
+
+		
+		
+		
+		
+        <hr class="filter-divider">
+
+        <!-- 
+        <div class="results-section" id="resultsSection">
+          
+           <textarea id="jsonDisplay" readonly></textarea>
+            <p id="errorMessage"></p>
+        </div>-->
+		
+		<!-- Add this to your HTML where you want to display the search results -->
+<div id="searchResultsContainer"></div>  
+
+		
     </div>
+<!-- <div id="resultsSection"></div>  -->
 
-    <!-- Loading Indicator with Spinner -->
-    <div id="loadingIndicator" style="display: none;">
-        <div class="loader"></div>
-    </div>
 
-    <!-- Results Table -->
-    <table id="resultsTable">
-        <thead>
-            <tr>
-                <th>System Objects</th>
-                <th>Standard Vault Objects</th>
-                <th>Application Specific Objects</th>
-                <th>Custom Objects</th>
-            </tr>
-        </thead>
-        <tbody id="resultsBody">
-            <!-- Rows will be populated here -->
-        </tbody>
-    </table>
+<script>
 
-    <script>
-        // Debounce Function
-        function debounce(func, delay) {
-            let debounceTimer;
-            return function() {
-                const context = this;
-                const args = arguments;
-                clearTimeout(debounceTimer);
-                debounceTimer = setTimeout(() => func.apply(context, args), delay);
-            }
+
+// Show loader
+
+
+ function showLoader() {
+            document.querySelector('.loader').classList.add('show-loader');
         }
 
-        // Attach Debounced Input Event
-        document.getElementById("searchInput").addEventListener("input", debounce(function() {
-            const input = this.value.trim().toUpperCase();
-            const errorMessage = document.getElementById("errorMessage");
+        // Hide loader
+        function hideLoader() {
+            document.querySelector('.loader').classList.remove('show-loader');
+        }
 
-            if (input === "QMS") {
-                errorMessage.style.display = "none"; // Hide error message if "QMS" is typed
-            } else {
-                errorMessage.style.display = "block"; // Show error message for any other input
-            }
-        }, 300));
+function startSearch() {
+    const searchInput = document.getElementById('landingSearchInput').value;
+    if (searchInput.trim() === '') {
+        alert('Please enter a search term');
+        return;
+    }
 
-        // Attach Keydown Event Listener for Enter Key
-        document.getElementById("searchInput").addEventListener("keydown", (event) => {
-            if (event.key === 'Enter') {
-                event.preventDefault(); // Prevent the default form submission
-                document.getElementById("searchButton").click(); // Trigger the search button click
+    document.getElementById('landingPage').style.display = 'none';
+    document.getElementById('searchResultsPage').style.display = 'block';
+    document.getElementById('topSearchInput').value = searchInput;
+
+    handleSearch();
+}
+
+async function handleSearch() {
+    const searchTerm = document.getElementById('topSearchInput').value;
+    if (searchTerm.trim() === '') {
+        alert('Please enter a search term');
+        return;
+    }
+ showLoader();
+    // Perform search and fetch data from Veeva server
+    await fetchMetadata(searchTerm);
+}
+
+
+ 
+ 
+// Add event listeners for Enter key on both search inputs
+document.getElementById('landingSearchInput').addEventListener('keypress', function(event) {
+    if (event.key === 'Enter') {
+        event.preventDefault();
+        startSearch();
+    }
+});
+
+document.getElementById('topSearchInput').addEventListener('keypress', function(event) {
+    if (event.key === 'Enter') {
+        event.preventDefault();
+        handleSearch();
+    }
+});
+
+// Track the current filter type
+let activeFilter = 'all'; // Default to 'all'
+let metadataData = null; // To store fetched metadata globally
+
+async function fetchMetadata(searchTerm) {
+    const username = 'prana.user4@partnersi-prana4life.com'; 
+    const password = 'Prana4@2025!'; // Avoid hardcoding credentials in production
+
+    const formData = new URLSearchParams();
+    formData.append('username', username);
+    formData.append('password', password);
+
+
+    try {
+        // Authentication request
+        const authResponse = await fetch('https://cors-anywhere.herokuapp.com/https://partnersi-prana4life-quality.veevavault.com/api/v24.2/auth', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/x-www-form-urlencoded',
+                'X-Requested-With': 'XMLHttpRequest'
+            },
+            body: formData
+        });
+
+        if (!authResponse.ok) {
+            throw new Error(`Authentication failed: ${authResponse.status}`);
+        }
+
+        const authData = await authResponse.json();
+        const sessionId = authData.sessionId;
+
+        if (!sessionId) {
+            throw new Error('Failed to obtain session ID.');
+        }
+
+        // Search query
+        const query = buildQuery(searchTerm);
+        const searchResponse = await fetch(`https://cors-anywhere.herokuapp.com/https://partnersi-prana4life-quality.veevavault.com/api/v24.2/query?q=${query}`, { 
+            headers: {
+                'Authorization': sessionId,
+                'X-Requested-With': 'XMLHttpRequest'
             }
         });
 
-        // Attach Click Event Listener
-        document.getElementById("searchButton").addEventListener("click", async () => {
-            await validateInput();
-        });
-
-        // Asynchronous Validate Input Function
-        async function validateInput() {
-            const input = document.getElementById("searchInput").value.trim().toUpperCase();
-            const errorMessage = document.getElementById("errorMessage");
-
-            if (input === "QMS") {
-                errorMessage.style.display = "none"; // Hide error message
-                await fetchMetadata(); // Fetch metadata for "QMS"
-            } else {
-                errorMessage.style.display = "block"; // Show error message
-            }
+        if (!searchResponse.ok) {
+            throw new Error(`Search failed: ${searchResponse.status}`);
         }
 
-        async function fetchMetadata() {
-            const username = 'prana.user4@partnersi-prana4life.com'; 
-            const password = 'Prana4@2025!'; 
+        metadataData = await searchResponse.json(); // Store metadata globally
 
-            const formData = new URLSearchParams();
-            formData.append('username', username);
-            formData.append('password', password);
+        // Display the response in the JSON textarea for debugging
+       // document.getElementById('jsonDisplay').style.display = 'block';
+        // document.getElementById('jsonDisplay').value = JSON.stringify(metadataData, null, 2);
 
-            // Show loading indicator
-            document.getElementById("loadingIndicator").style.display = "block";
+        // Call function to display results
+        displayFilteredResults(metadataData, searchTerm);
 
-            try {
-                // Authenticate and get sessionId
-                const authResponse = await fetch('https://cors-anywhere.herokuapp.com/https://partnersi-prana4life-quality.veevavault.com/api/v24.2/auth', {
-                    method: 'POST',
-                    headers: {
-                        'Content-Type': 'application/x-www-form-urlencoded',
-                        'X-Requested-With': 'XMLHttpRequest' // Added header
-                    },
-                    body: formData
-                });
+    } catch (error) {
+        console.error('Error during fetch:', error);
+        document.getElementById('errorMessage').style.display = 'block';
+        document.getElementById('errorMessage').textContent = `Error fetching metadata: ${error.message}`;
+    }
+	finally {
+        hideLoader(); // Hide the loader once fetch is complete (success or failure)
+    }
+}
 
-                if (!authResponse.ok) {
-                    throw new Error(`Authentication failed with status ${authResponse.status}`);
-                }
+// Handle tab changes and filter results locally based on the filter type
+function filterResults(type) {
+    // Update the active filter
+    activeFilter = type;
 
-                const authData = await authResponse.json();
-                console.log('Auth Response Data:', authData);
-                const sessionId = authData.sessionId;
+    // Update UI tab states
+    const tabs = document.querySelectorAll('.filter-tabs a');
+    tabs.forEach(tab => tab.classList.remove('active'));
+    document.getElementById(type + 'Tab').classList.add('active');
 
-                // Check if sessionId was returned
-                if (!sessionId) {
-                    throw new Error('Failed to obtain session ID.');
-                }
+    // Display filtered results based on the selected filter
+    if (metadataData) {
+        displayFilteredResults(metadataData);
+    }
+}
 
-                // Fetch metadata using the sessionId
-                const metadataResponse = await fetch('https://cors-anywhere.herokuapp.com/https://partnersi-prana4life-quality.veevavault.com/api/v24.2/metadata/vobjects', {
-                    method: 'GET',
-                    headers: {
-                        'Authorization': sessionId,
-                        'Accept': 'application/json',
-                        'X-Requested-With': 'XMLHttpRequest' // Added header
-                    }
-                });
+// Function to display the filtered results on the UI
+function displayFilteredResults(metadataData) {
+    const resultsContainer = document.getElementById('searchResultsContainer');
+    resultsContainer.innerHTML = ''; // Clear previous results
 
-                if (!metadataResponse.ok) {
-                    throw new Error(`Metadata fetch failed with status ${metadataResponse.status}`);
-                }
+    const results = metadataData.data; // Assuming the results are in a 'data' field
 
-                const metadataData = await metadataResponse.json();
-                console.log('Metadata Data:', metadataData);
+    if (!results || results.length === 0) {
+        resultsContainer.innerHTML = `<p>No results found.</p>`;
+        return;
+    }
 
-                // Check if the response structure matches expectations
-                if (!metadataData || !metadataData.objects) {
-                    throw new Error('Invalid metadata response structure.');
-                }
+    results.forEach(result => {
+        const resultDiv = document.createElement('div');
+        resultDiv.classList.add('result-item');
 
-                // Categorize objects based on suffix
-                const systemObjects = metadataData.objects.filter(obj => obj.name.endsWith('__sys'));
-                const standardVaultObjects = metadataData.objects.filter(obj => obj.name.endsWith('__v'));
-                const applicationSpecificObjects = metadataData.objects.filter(obj => obj.name.endsWith('__qdm'));
-                const customObjects = metadataData.objects.filter(obj => obj.name.endsWith('__c'));
-
-                // Display the results in the table
-                displayResults(systemObjects, standardVaultObjects, applicationSpecificObjects, customObjects);
-
-                // Update summary buttons
-                updateSummaryButtons(systemObjects.length, standardVaultObjects.length, applicationSpecificObjects.length, customObjects.length);
-
-            } catch (error) {
-                console.error('Error fetching metadata:', error);
-                // Optionally, display the error message to the user
-                document.getElementById("errorMessage").innerText = `Error: ${error.message}`;
-                document.getElementById("errorMessage").style.display = "block";
-            } finally {
-                // Hide loading indicator
-                document.getElementById("loadingIndicator").style.display = "none";
-            }
+        // Conditionally display fields based on the active filter
+        if (activeFilter === 'all' || activeFilter === 'name') {
+            resultDiv.innerHTML += `<p><strong>Name:</strong> ${result.name__v || 'N/A'}</p>`;
+        }
+        if (activeFilter === 'all' || activeFilter === 'fileName') {
+            resultDiv.innerHTML += `<p><strong>Filename:</strong> ${result.filename__v || 'N/A'}</p>`;
+        }
+        if (activeFilter === 'all' || activeFilter === 'lifecycle') {
+            resultDiv.innerHTML += `<p><strong>Lifecycle:</strong> ${result.lifecycle__v || 'N/A'}</p>`;
+        }
+        if (activeFilter === 'all' || activeFilter === 'docType') {
+            resultDiv.innerHTML += `<p><strong>Type:</strong> ${result.type__v || 'N/A'}</p>`;
+        }
+        if (activeFilter === 'all' || activeFilter === 'docSubType') {
+            resultDiv.innerHTML += `<p><strong>Subtype:</strong> ${result.subtype__v || 'N/A'}</p>`;
+        }
+        if (activeFilter === 'all' || activeFilter === 'docClassify') {
+            resultDiv.innerHTML += `<p><strong>Classification:</strong> ${result.classification__v || 'N/A'}</p>`;
         }
 
-        function displayResults(systemObjects, standardVaultObjects, applicationSpecificObjects, customObjects) {
-            const table = document.getElementById("resultsTable");
-            const tbody = document.getElementById("resultsBody");
+        // Construct the document URL
+        const docId = result.id; // Extract the document ID
+        const documentUrl = `https://partnersi-prana4life-quality.veevavault.com/ui/#doc_info/${docId}/1/0`;
 
-            tbody.innerHTML = ''; // Clear any previous content
+        // Create a button to view the document
+        const viewButton = document.createElement('button');
+        viewButton.textContent = 'View Document'; // Button label
+        viewButton.classList.add('view-document-button'); // Optional: Add a class for styling
+        viewButton.onclick = function() {
+            window.open(documentUrl, '_blank'); // Open the document in a new tab
+        };
 
-            // Determine the maximum number of rows needed
-            const maxRows = Math.max(systemObjects.length, standardVaultObjects.length, applicationSpecificObjects.length, customObjects.length);
+        // Append the view button
+        const buttonContainer = document.createElement('div');
+        buttonContainer.classList.add('button-container'); // Add a container for button alignment
+        buttonContainer.appendChild(viewButton);
+        resultDiv.appendChild(buttonContainer);
+        
+        resultsContainer.appendChild(resultDiv);
+    });
+}
 
-            for (let i = 0; i < maxRows; i++) {
-                const row = document.createElement("tr");
+// Build the query (without the need for dynamic filtering during the fetch)
+function buildQuery(searchTerm) {
+    return `select id, name__v, filename__v, document_number__v, lifecycle__v, type__v, subtype__v, classification__v FROM ALLVERSIONS documents FIND('${searchTerm}' SCOPE ALL)`;
+}
 
-                // System Objects
-                const sysCell = document.createElement("td");
-                sysCell.textContent = systemObjects[i] ? systemObjects[i].name : '';
-                row.appendChild(sysCell);
+</script>
 
-                // Standard Vault Objects
-                const stdCell = document.createElement("td");
-                stdCell.textContent = standardVaultObjects[i] ? standardVaultObjects[i].name : '';
-                row.appendChild(stdCell);
-
-                // Application Specific Objects
-                const appCell = document.createElement("td");
-                appCell.textContent = applicationSpecificObjects[i] ? applicationSpecificObjects[i].name : '';
-                row.appendChild(appCell);
-
-                // Custom Objects
-                const custCell = document.createElement("td");
-                custCell.textContent = customObjects[i] ? customObjects[i].name : '';
-                row.appendChild(custCell);
-
-                tbody.appendChild(row);
-            }
-
-            // Show the table if there are any results
-            const hasResults = systemObjects.length > 0 || standardVaultObjects.length > 0 || applicationSpecificObjects.length > 0 || customObjects.length > 0;
-            table.style.display = hasResults ? 'table' : 'none';
-        }
-
-        function updateSummaryButtons(systemCount, standardVaultCount, applicationSpecificCount, customCount) {
-            const totalCount = systemCount + standardVaultCount + applicationSpecificCount + customCount;
-
-            // Show the summary section
-            const summarySection = document.getElementById("summarySection");
-            summarySection.style.display = 'block';
-
-            // Update Total Objects Button
-            const totalObjectsButton = document.getElementById("totalObjectsButton");
-            totalObjectsButton.textContent = `Total Number of Objects in Quality Vault: ${totalCount}`;
-
-            // Update System Objects Button
-            const systemObjectsButton = document.getElementById("systemObjectsButton");
-            systemObjectsButton.textContent = `System Objects: ${systemCount}`;
-
-            // Update Standard Vault Objects Button
-            const standardVaultObjectsButton = document.getElementById("standardVaultObjectsButton");
-            standardVaultObjectsButton.textContent = `Standard Vault Objects: ${standardVaultCount}`;
-
-            // Update Application Specific Objects Button
-            const applicationSpecificObjectsButton = document.getElementById("applicationSpecificObjectsButton");
-            applicationSpecificObjectsButton.textContent = `Application Specific Objects: ${applicationSpecificCount}`;
-
-            // Update Custom Objects Button
-            const customObjectsButton = document.getElementById("customObjectsButton");
-            customObjectsButton.textContent = `Custom Objects: ${customCount}`;
-        }
-    </script>
-
+  
+  
+  
 </body>
 </html>
