@@ -3,18 +3,20 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>QMS Object Search</title>
+    <title>Veeva Quality Suite</title>
     <link href="https://fonts.googleapis.com/css?family=Source+Sans+Pro:400,300,600" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/ionicons/2.0.1/css/ionicons.min.css">
     <style>
-        /* Basic reset and body styling */
+        
+		 /* Basic reset and body styling */
         * {
             box-sizing: border-box;
             margin: 0;
             padding: 0;
+			font-family: 'Source Sans Pro', sans-serif;
         }
 
-        body {
+        body, .landing-search-box, .top-bar, .filter-tabs, .results-section, .result-item {
             font-family: 'Source Sans Pro', sans-serif;
             background-color: #fefefe;
         }
@@ -39,14 +41,40 @@
             margin-top: 30px;
         }
 
+
+.landing-search-box input[type="text"],
+.landing-search-box select,
+.landing-search-box button {
+    margin: 0;
+	height: 55px;
+	
+}
+
+
         .landing-search-box input[type="text"] {
-            width: 600px;
+            width: 500px;
             padding: 15px 20px;
             font-size: 1.2em;
             border: 1px solid #dfe1e5;
             border-radius: 24px 0 0 24px;
             outline: none;
         }
+		
+				
+		
+		/* Style the dropdown to match the search box style */
+.landing-search-box select {
+      padding: 15px;
+	  width: 220px;
+    font-size: 1.2em;
+    border: 1px solid #dfe1e5;
+    border-radius: 0;
+    outline: none;
+    background-color: #f8f9fa;
+    margin-left: 1px;
+    cursor: pointer;
+}
+		
 
         .landing-search-box button {
             padding: 15px 20px;
@@ -85,6 +113,17 @@
             margin-left: 20px;
         }
 
+
+.top-bar-search-box input[type="text"],
+.top-bar-search-box select,
+.top-bar-search-box button {
+    margin: 0;
+    height: 40px;
+	
+    
+}
+
+
         .top-bar-search-box input[type="text"] {
             width: 450px;
             padding: 10px 20px;
@@ -93,6 +132,23 @@
             border-radius: 24px 0 0 24px;
             outline: none;
         }
+		
+		
+		.top-bar-search-box select {
+      
+	  padding: 9px 10px;
+	  width: 190px;
+    font-size: 1em;
+    border: 1px solid #dfe1e5;
+    border-radius: 0;
+    outline: none;
+    background-color: #f8f9fa;
+    margin-left: 1px;
+    cursor: pointer;
+}
+
+
+		
 
         .top-bar-search-box button {
             padding: 10px 20px;
@@ -183,6 +239,7 @@
             border-radius: 5px; /* Rounded corners */
             cursor: pointer; /* Pointer cursor */
 			margin-top:10px;
+			font-size:20px;
         }
 
         .view-document-button:hover {
@@ -246,7 +303,7 @@
 </head>
 <body>
 
- <div class="loader"></div>
+ <div class="loader"></div>               
  
  <div id="content">
     <!-- Landing Page -->
@@ -256,6 +313,11 @@
         </div>
         <div class="landing-search-box">
             <input type="text" id="landingSearchInput" placeholder="Search...">
+						<!-- Dropdown menu for selecting search type -->
+    <select id="searchTypeDropdown">
+        <option value="object">Search by Document</option>
+        <option value="document">Search by Object</option>
+    </select>
             <button onclick="startSearch()">Search</button>
 			
         </div>
@@ -264,14 +326,23 @@
     <!-- Search Results Page -->
     <div class="search-results" id="searchResultsPage">
         <div class="top-bar">
-            <div class="top-bar-logo">
-                <img src="vault.png" alt="Logo">
-            </div>
+           
+		   <div class="top-bar-logo">                      
+                <img src="vault.png" alt="Logo">           
+            </div>                                         
 			
 			
             <div class="top-bar-search-box">
                 <input type="text" id="topSearchInput" placeholder="Search...">
-                <button id="searchButton" onclick="handleSearch()">Search</button>
+                
+				
+				<!-- Dropdown menu for selecting search type -->
+    <select id="searchTypeDropdown">
+        <option value="object">Search by Document</option>
+        <option value="document">Search by Object</option>
+    </select>
+				
+				<button id="searchButton" onclick="handleSearch()">Search</button>
             </div>
         </div>
 		
@@ -374,6 +445,8 @@ document.getElementById('topSearchInput').addEventListener('keypress', function(
 let activeFilter = 'all'; // Default to 'all'
 let metadataData = null; // To store fetched metadata globally
 
+
+
 async function fetchMetadata(searchTerm) {
     const username = 'prana.user4@partnersi-prana4life.com'; 
     const password = 'Prana4@2025!'; // Avoid hardcoding credentials in production
@@ -405,8 +478,18 @@ async function fetchMetadata(searchTerm) {
             throw new Error('Failed to obtain session ID.');
         }
 
+
+
+let offset = 0;
+        const limit = 1000;
+        let hasMoreResults = true;
+        metadataData = { data: [] }; // Initialize metadataData as an empty array to hold all results
+
+        while (hasMoreResults) {
+
+
         // Search query
-        const query = buildQuery(searchTerm);
+        const query = buildQuery(searchTerm, limit, offset);
         const searchResponse = await fetch(`https://cors-anywhere.herokuapp.com/https://partnersi-prana4life-quality.veevavault.com/api/v24.2/query?q=${query}`, { 
             headers: {
                 'Authorization': sessionId,
@@ -418,13 +501,18 @@ async function fetchMetadata(searchTerm) {
             throw new Error(`Search failed: ${searchResponse.status}`);
         }
 
-        metadataData = await searchResponse.json(); // Store metadata globally
+         const data = await searchResponse.json();
 
-        // Display the response in the JSON textarea for debugging
-       // document.getElementById('jsonDisplay').style.display = 'block';
-        // document.getElementById('jsonDisplay').value = JSON.stringify(metadataData, null, 2);
+            // Append results to global metadataData
+            if (data.data && data.data.length > 0) {
+                metadataData.data.push(...data.data); // Append new batch to metadataData
+                offset += limit; // Increment offset for next batch
+            } else {
+                hasMoreResults = false; // No more data to fetch, exit loop
+            }
+        }
 
-        // Call function to display results
+        // Display all fetched results
         displayFilteredResults(metadataData, searchTerm);
 
     } catch (error) {
@@ -512,8 +600,8 @@ function displayFilteredResults(metadataData) {
 }
 
 // Build the query (without the need for dynamic filtering during the fetch)
-function buildQuery(searchTerm) {
-    return `select id, name__v, filename__v, document_number__v, lifecycle__v, type__v, subtype__v, classification__v FROM ALLVERSIONS documents FIND('${searchTerm}' SCOPE ALL)`;
+function buildQuery(searchTerm, limit, offset) {
+    return `select id, name__v, filename__v, document_number__v, lifecycle__v, type__v, subtype__v, classification__v FROM ALLVERSIONS documents FIND('${searchTerm}' SCOPE ALL) LIMIT ${limit} OFFSET ${offset} `;
 }
 
 </script>
