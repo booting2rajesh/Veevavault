@@ -16,7 +16,7 @@
 			font-family: 'Source Sans Pro', sans-serif;
         }
 
-        body, .landing-search-box, .top-bar, .filter-tabs, .results-section, .result-item {
+        body, .landing-search-box, .top-bar, .results-section, .result-item {
             font-family: 'Source Sans Pro', sans-serif;
             background-color: #fefefe;
         }
@@ -147,9 +147,6 @@
     cursor: pointer;
 }
 
-
-		
-
         .top-bar-search-box button {
             padding: 10px 20px;
             border: 1px solid #dfe1e5;
@@ -161,37 +158,7 @@
             transition: background-color 0.3s;
         }
 
-        .filter-tabs {
-            display: flex;
-            justify-content: left;
-            margin-left: 120px;
-            margin-top: 20px;
-        }
-
-        .filter-tabs a {
-            padding: 10px 15px;
-            margin: 0 5px;
-            color: #333;
-            font-size: 1em;
-            border-bottom: 2px solid transparent;
-            text-decoration: none;
-            cursor: pointer;
-        }
-
-        .filter-tabs a.active {
-            border-bottom: 2px solid #fc9918;
-        }
-
-        .filter-divider {
-            margin: 10px 0;
-            border: 0;
-            border-top: 1px solid #ccc;
-            width: 100vw;
-            position: relative;
-            left: 50%;
-            right: 50%;
-            margin-left: -50vw;
-        }
+      
 
         .results-section {
             margin-top: 20px;
@@ -230,26 +197,30 @@
             display: none; /* Hide initially */
         }
 
-
-   .view-document-button {
-            background-color: #007bff; /* Button color */
-            color: white; /* Text color */
-            border: none; /* Remove border */
-            padding: 10px 20px; /* Padding */
-            border-radius: 5px; /* Rounded corners */
-            cursor: pointer; /* Pointer cursor */
-			margin-top:10px;
-			font-size:20px;
-        }
-
-        .view-document-button:hover {
-            background-color: #0056b3; /* Darker shade on hover */
-        }
-
         
         /* Example styles for results container */
         #searchResultsContainer {
-            margin: 20px; /* Adds some margin for spacing */
+		
+		max-height: 100%; /* Constrain to grid item height */
+    overflow-y: auto; /* Enable scrolling for excess content */
+    padding-right: 15px; /* Add padding to prevent content from hiding under scrollbar */
+    box-sizing: border-box;
+		
+		
+            margin: 15px; /* Adds some margin for spacing */
+        }
+
+
+
+ #objectResultsContainer {
+		
+		max-height: 100%; /* Constrain to grid item height */
+    overflow-y: auto; /* Enable scrolling for excess content */
+    padding-right: 15px; /* Add padding to prevent content from hiding under scrollbar */
+    box-sizing: border-box;
+		
+		
+            margin: 15px; /* Adds some margin for spacing */
         }
 
 
@@ -262,7 +233,7 @@
 			.loader {
     width: 40px;
     height: 40px;
-    --c: no-repeat linear-gradient(orange 0 0);
+    --c: no-repeat linear-gradient(white 0 0);
     background: var(--c), var(--c), var(--c), var(--c);
     background-size: 21px 21px;
     animation: l5 1.5s infinite cubic-bezier(0.3, 1, 0, 1);
@@ -298,6 +269,121 @@
             100% { background-position: 100% 0, 100% 100%, 0 100%, 0 0 }
         }
 		
+
+
+
+
+
+
+/* Header styles for both object and document headers */
+
+.all-objects-header, .all-documents-header {
+    display: flex;
+    align-items: center;
+    
+	margin-left: 10px;
+    padding: 10px;
+    background-color: #FF6F61;
+    color: #fff;
+    font-size: 1.2rem;
+    font-weight: bold;
+    border-radius: 5px;
+    cursor: pointer;
+    box-shadow: 0px 4px 6px rgba(0, 0, 0, 0.1);
+    margin-bottom: 5px;
+	width: calc(100% - 20px); /* Match container width minus margin */
+    box-sizing: border-box; 
+}
+
+.all-objects-header .expand-button, .all-documents-header .expand-button {
+    font-size: 1.5rem;
+    margin-left: 15px;
+    transition: transform 0.3s ease;
+	transform: scale(1.35);
+	
+	
+}
+
+.all-objects-header .expand-button.expanded, .all-documents-header .expand-button.expanded {
+    
+	transform: rotate(90deg); /* Flips icon when expanded */
+	
+}
+
+.object-count, .document-count  {
+    margin-left: 10px; /* Space between the text and the count */
+}
+
+
+
+
+/* General container styles for results */
+.object-results-container,
+.document-results-container {
+    padding: 10px;
+    background-color: #e6e1e1;
+    border-radius: 5px;
+    margin-top: 5px;
+    display: none; /* Initially hidden */
+    max-height: 150px;
+    overflow-y: auto;
+	
+	
+	
+	width: calc(100% - 20px); /* Match header width */
+    box-sizing: border-box;
+    margin-left: 10px; /* Aligns left with headers */
+	
+	
+}
+
+
+
+
+
+
+
+
+.grid-container {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    grid-template-rows: 1fr 1fr;
+    gap: 2px;
+    height: 100vh;
+    padding: 8px;
+}
+
+.grid-item {
+    border: 1px solid #dfe1e5;
+    border-radius: 8px;
+    padding: 5px;
+    overflow: auto;
+    position: relative;
+	text-align:center;
+	font-size:22px;
+	font-weight: 700;
+	color:#454343;
+}
+
+/* Colors for individual quadrants */
+#resultsQuadrant {
+    background-color: #f78f72;
+}
+
+#quadrant2 {
+    background-color: #8eb4fa;
+}
+
+#quadrant3 {
+    background-color: #fce956;
+}
+
+#quadrant4 {
+    background-color: #86f7a4;
+}
+
+
+
 		
     </style>
 </head>
@@ -313,12 +399,10 @@
         </div>
         <div class="landing-search-box">
             <input type="text" id="landingSearchInput" placeholder="Search...">
-						<!-- Dropdown menu for selecting search type -->
-    <select id="searchTypeDropdown">
-        <option value="object">Search by Document</option>
-        <option value="document">Search by Object</option>
-    </select>
-            <button onclick="startSearch()">Search</button>
+						
+    
+           
+			 <button onclick="startSearch()">Search</button>
 			
         </div>
     </div>
@@ -336,68 +420,64 @@
                 <input type="text" id="topSearchInput" placeholder="Search...">
                 
 				
-				<!-- Dropdown menu for selecting search type -->
-    <select id="searchTypeDropdown">
-        <option value="object">Search by Document</option>
-        <option value="document">Search by Object</option>
-    </select>
+				
 				
 				<button id="searchButton" onclick="handleSearch()">Search</button>
             </div>
         </div>
 		
 
+<div class="grid-container">
+    <!-- Quadrant 1: Results Section -->
+    <div class="grid-item" id="resultsQuadrant"> QMS
+        <div id="searchResultsContainer"></div>
+		<div id="objectResultsContainer"></div>
 
-        <!-- Filter Tabs -->
+    </div>
+
     
-		
-		<div class="filter-tabs">
-    <a class="active" id="allTab" onclick="filterResults('all')">All</a>
-    <a id="nameTab" onclick="filterResults('name')">Name</a>
-    <a id="fileNameTab" onclick="filterResults('fileName')">File Name</a>
-    <a id="lifecycleTab" onclick="filterResults('lifecycle')">Life Cycle</a>
-    <a id="docTypeTab" onclick="filterResults('docType')">Type</a>
-    <a id="docSubTypeTab" onclick="filterResults('docSubType')">Sub Type</a>
-    <a id="docClassifyTab" onclick="filterResults('docClassify')">Classification</a>
+    <div class="grid-item" id="quadrant2"> QDOCS </div>
+    <div class="grid-item" id="quadrant3"> CTMS </div>
+    <div class="grid-item" id="quadrant4"> eTMF </div>
 </div>
 
 
-		
-		
-		
-		
-        <hr class="filter-divider">
 
-        <!-- 
-        <div class="results-section" id="resultsSection">
-          
-           <textarea id="jsonDisplay" readonly></textarea>
-            <p id="errorMessage"></p>
-        </div>-->
-		
-		<!-- Add this to your HTML where you want to display the search results -->
-<div id="searchResultsContainer"></div>  
-
-		
-    </div>
-<!-- <div id="resultsSection"></div>  -->
 
 
 <script>
 
+let metadataData = null; // Stores fetched metadata globally
+let objectResults = []; // Stores fetched object results
+let searchTerm = '';
+
+// Array of objects and their corresponding queries to search
+const objectQueries = {
+    'audit__qdm': "select id, name__v FROM audit__qdm FIND('{searchTerm}')",
+    'audit_program__v': "select id, name__v FROM audit_program__v FIND('{searchTerm}')",
+    'capa_action__qdm': "select id, name__v FROM capa_action__qdm FIND('{searchTerm}')",
+    'change_action__qdm': "select id, name__v FROM change_action__qdm FIND('{searchTerm}')",
+    'effectiveness_check__qdm': "select id, name__v FROM effectiveness_check__qdm FIND('{searchTerm}')",
+    'investigation__qdm': "select id, name__v FROM investigation__qdm FIND('{searchTerm}')",
+    'extension_request__qdm': "select id, name__v FROM extension_request__qdm FIND('{searchTerm}')",
+    'issue_escalation__v': "select id, name__v FROM issue_escalation__v FIND('{searchTerm}')",
+    'qms_organization__qdm': "select id, name__v FROM qms_organization__qdm FIND('{searchTerm}')",
+    'qms_org_qualification__v': "select id, name__v FROM qms_org_qualification__v FIND('{searchTerm}')",
+    'qms_scar__v': "select id, name__v FROM qms_scar__v FIND('{searchTerm}')",
+    'quality_event__qdm': "select id, name__v,title__v,description__c,justification__qdm,comments__v,severity__qdm,ae_severity__v, object_type__vr.name__v FROM quality_event__qdm FIND('{searchTerm}')"
+};
 
 // Show loader
+function showLoader() {
+    document.querySelector('.loader').classList.add('show-loader');
+}
 
+// Hide loader
+function hideLoader() {
+    document.querySelector('.loader').classList.remove('show-loader');
+}
 
- function showLoader() {
-            document.querySelector('.loader').classList.add('show-loader');
-        }
-
-        // Hide loader
-        function hideLoader() {
-            document.querySelector('.loader').classList.remove('show-loader');
-        }
-
+// Initialize the search from landing or top search bar
 function startSearch() {
     const searchInput = document.getElementById('landingSearchInput').value;
     if (searchInput.trim() === '') {
@@ -412,53 +492,44 @@ function startSearch() {
     handleSearch();
 }
 
+// Add enter key event listener
+function addEnterKeyListener(inputElement, callback) {
+    inputElement.addEventListener('keypress', (event) => {
+        if (event.key === 'Enter') {
+            event.preventDefault();
+            if (inputElement.value.trim() !== '') {
+                callback();
+            } else {
+                alert('Please enter a search term');
+            }
+        }
+    });
+}
+
+// Add listeners for the landing and top search inputs
+addEnterKeyListener(document.getElementById('landingSearchInput'), startSearch);
+addEnterKeyListener(document.getElementById('topSearchInput'), handleSearch);
+
 async function handleSearch() {
-    const searchTerm = document.getElementById('topSearchInput').value;
+    searchTerm = document.getElementById('topSearchInput').value;
     if (searchTerm.trim() === '') {
         alert('Please enter a search term');
         return;
     }
- showLoader();
-    // Perform search and fetch data from Veeva server
+    showLoader();
     await fetchMetadata(searchTerm);
 }
 
-
- 
- 
-// Add event listeners for Enter key on both search inputs
-document.getElementById('landingSearchInput').addEventListener('keypress', function(event) {
-    if (event.key === 'Enter') {
-        event.preventDefault();
-        startSearch();
-    }
-});
-
-document.getElementById('topSearchInput').addEventListener('keypress', function(event) {
-    if (event.key === 'Enter') {
-        event.preventDefault();
-        handleSearch();
-    }
-});
-
-// Track the current filter type
-let activeFilter = 'all'; // Default to 'all'
-let metadataData = null; // To store fetched metadata globally
-
-
-
 async function fetchMetadata(searchTerm) {
-    const username = 'prana.user4@partnersi-prana4life.com'; 
-    const password = 'Prana4@2025!'; // Avoid hardcoding credentials in production
+    const username = 'prana.user4@partnersi-prana4life.com';
+    const password = 'Prana4@2025!'; // Ensure secure handling in production
 
     const formData = new URLSearchParams();
     formData.append('username', username);
     formData.append('password', password);
 
-
     try {
-        // Authentication request
-        const authResponse = await fetch('https://cors-anywhere.herokuapp.com/https://partnersi-prana4life-quality.veevavault.com/api/v24.2/auth', {
+        const authResponse = await fetch(getVaultApiUrl('auth'), {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/x-www-form-urlencoded',
@@ -478,136 +549,201 @@ async function fetchMetadata(searchTerm) {
             throw new Error('Failed to obtain session ID.');
         }
 
+        await fetchDocuments(searchTerm, sessionId);
+        await fetchObjects(searchTerm, sessionId);
 
+        displayFilteredResults(metadataData);
+        displayObjectResults(objectResults);
 
-let offset = 0;
-        const limit = 1000;
-        let hasMoreResults = true;
-        metadataData = { data: [] }; // Initialize metadataData as an empty array to hold all results
+    } catch (error) {
+        console.error('Error during fetch:', error);
+        document.getElementById('errorMessage').style.display = 'block';
+        document.getElementById('errorMessage').textContent = `Error fetching metadata: ${error.message}`;
+    } finally {
+        hideLoader();
+    }
+}
 
-        while (hasMoreResults) {
+async function fetchDocuments(searchTerm, sessionId) {
+    let offset = 0;
+    const limit = 1000;
+    let hasMoreResults = true;
+    metadataData = { data: [] };
 
-
-        // Search query
+    while (hasMoreResults) {
         const query = buildQuery(searchTerm, limit, offset);
-        const searchResponse = await fetch(`https://cors-anywhere.herokuapp.com/https://partnersi-prana4life-quality.veevavault.com/api/v24.2/query?q=${query}`, { 
+        const searchResponse = await fetchWithRetry(getVaultApiUrl(`query?q=${query}`), {
             headers: {
                 'Authorization': sessionId,
                 'X-Requested-With': 'XMLHttpRequest'
             }
         });
 
-        if (!searchResponse.ok) {
-            throw new Error(`Search failed: ${searchResponse.status}`);
+        const data = searchResponse;
+        if (data.data && data.data.length > 0) {
+            metadataData.data.push(...data.data);
+            offset += limit;
+        } else {
+            hasMoreResults = false;
         }
-
-         const data = await searchResponse.json();
-
-            // Append results to global metadataData
-            if (data.data && data.data.length > 0) {
-                metadataData.data.push(...data.data); // Append new batch to metadataData
-                offset += limit; // Increment offset for next batch
-            } else {
-                hasMoreResults = false; // No more data to fetch, exit loop
-            }
-        }
-
-        // Display all fetched results
-        displayFilteredResults(metadataData, searchTerm);
-
-    } catch (error) {
-        console.error('Error during fetch:', error);
-        document.getElementById('errorMessage').style.display = 'block';
-        document.getElementById('errorMessage').textContent = `Error fetching metadata: ${error.message}`;
-    }
-	finally {
-        hideLoader(); // Hide the loader once fetch is complete (success or failure)
     }
 }
 
-// Handle tab changes and filter results locally based on the filter type
-function filterResults(type) {
-    // Update the active filter
-    activeFilter = type;
+async function fetchObjects(searchTerm, sessionId) {
+    objectResults = [];
 
-    // Update UI tab states
-    const tabs = document.querySelectorAll('.filter-tabs a');
-    tabs.forEach(tab => tab.classList.remove('active'));
-    document.getElementById(type + 'Tab').classList.add('active');
+    for (const [objectType, queryTemplate] of Object.entries(objectQueries)) {
+        const query = queryTemplate.replace(/{searchTerm}/g, searchTerm);
 
-    // Display filtered results based on the selected filter
-    if (metadataData) {
-        displayFilteredResults(metadataData);
+        try {
+            const searchResponse = await fetchWithRetry(getVaultApiUrl(`query?q=${query}`), {
+                headers: {
+                    'Authorization': sessionId,
+                    'X-Requested-With': 'XMLHttpRequest'
+                }
+            });
+
+            console.log(`Response for ${objectType}:`, searchResponse);
+            objectResults.push({
+                objectType: objectType,
+                results: searchResponse.data || []
+            });
+        } catch (error) {
+            console.error(`Object search failed for ${objectType}: ${error.message}`);
+        }
     }
 }
 
-// Function to display the filtered results on the UI
+// Utility function for fetch with retry
+async function fetchWithRetry(url, options, retries = 3) {
+    for (let i = 0; i < retries; i++) {
+        try {
+            const response = await fetch(url, options);
+            if (response.ok) return await response.json();
+            console.error(`Attempt ${i + 1} failed with status: ${response.status}`);
+        } catch (error) {
+            console.error(`Attempt ${i + 1} failed with error: ${error.message}`);
+        }
+    }
+    throw new Error(`Failed to fetch after ${retries} attempts`);
+}
+
+// Utility to build API URL
+function getVaultApiUrl(endpoint) {
+    const baseUrl = 'https://cors-anywhere.herokuapp.com/https://partnersi-prana4life-quality.veevavault.com/api/v24.2/';
+    return new URL(endpoint, baseUrl).toString();
+}
+
+// Build document query
+function buildQuery(searchTerm, limit, offset) {
+    return `select id, name__v, filename__v, document_number__v, lifecycle__v, type__v, subtype__v, classification__v FROM ALLVERSIONS documents FIND('${searchTerm}' SCOPE ALL) LIMIT ${limit} OFFSET ${offset}`;
+}
+
+
+
+// Display document search results
 function displayFilteredResults(metadataData) {
     const resultsContainer = document.getElementById('searchResultsContainer');
-    resultsContainer.innerHTML = ''; // Clear previous results
+    resultsContainer.innerHTML = ''; // Clear previous content
 
-    const results = metadataData.data; // Assuming the results are in a 'data' field
+    const results = metadataData.data || [];
+    const documentCount = results.length;
 
-    if (!results || results.length === 0) {
-        resultsContainer.innerHTML = `<p>No results found.</p>`;
-        return;
+    // Create a header similar to `displayObjectResults`
+    const documentHeader = document.createElement('div');
+    documentHeader.classList.add('all-documents-header');
+    documentHeader.innerHTML = `
+        <span>Total documents matching the search keyword:</span>
+        <div class="document-count">${documentCount}</div>
+        <div class="expand-button" onclick="toggleVisibility('documentList', this)">&#8250;</div>
+    `;
+    resultsContainer.appendChild(documentHeader);
+
+    // Create a container for the document list
+    const documentList = document.createElement('div');
+    documentList.classList.add('document-results-container'); // Consistent styling
+    documentList.setAttribute('id', 'documentList');
+    documentList.style.display = 'none'; // Initially hidden
+
+    if (documentCount > 0) {
+        results.forEach(result => {
+            const documentLink = document.createElement('a');
+            documentLink.href = `https://partnersi-prana4life-quality.veevavault.com/ui/#doc_info/${result.id}/1/0`;
+            documentLink.target = '_blank';
+            documentLink.textContent = result.name__v;
+            documentList.appendChild(documentLink);
+            documentList.appendChild(document.createElement('br'));
+        });
+    } else {
+        documentList.innerHTML = '<p>No document results found.</p>';
     }
 
-    results.forEach(result => {
-        const resultDiv = document.createElement('div');
-        resultDiv.classList.add('result-item');
-
-        // Conditionally display fields based on the active filter
-        if (activeFilter === 'all' || activeFilter === 'name') {
-            resultDiv.innerHTML += `<p><strong>Name:</strong> ${result.name__v || 'N/A'}</p>`;
-        }
-        if (activeFilter === 'all' || activeFilter === 'fileName') {
-            resultDiv.innerHTML += `<p><strong>Filename:</strong> ${result.filename__v || 'N/A'}</p>`;
-        }
-        if (activeFilter === 'all' || activeFilter === 'lifecycle') {
-            resultDiv.innerHTML += `<p><strong>Lifecycle:</strong> ${result.lifecycle__v || 'N/A'}</p>`;
-        }
-        if (activeFilter === 'all' || activeFilter === 'docType') {
-            resultDiv.innerHTML += `<p><strong>Type:</strong> ${result.type__v || 'N/A'}</p>`;
-        }
-        if (activeFilter === 'all' || activeFilter === 'docSubType') {
-            resultDiv.innerHTML += `<p><strong>Subtype:</strong> ${result.subtype__v || 'N/A'}</p>`;
-        }
-        if (activeFilter === 'all' || activeFilter === 'docClassify') {
-            resultDiv.innerHTML += `<p><strong>Classification:</strong> ${result.classification__v || 'N/A'}</p>`;
-        }
-
-        // Construct the document URL
-        const docId = result.id; // Extract the document ID
-        const documentUrl = `https://partnersi-prana4life-quality.veevavault.com/ui/#doc_info/${docId}/1/0`;
-
-        // Create a button to view the document
-        const viewButton = document.createElement('button');
-        viewButton.textContent = 'View Document'; // Button label
-        viewButton.classList.add('view-document-button'); // Optional: Add a class for styling
-        viewButton.onclick = function() {
-            window.open(documentUrl, '_blank'); // Open the document in a new tab
-        };
-
-        // Append the view button
-        const buttonContainer = document.createElement('div');
-        buttonContainer.classList.add('button-container'); // Add a container for button alignment
-        buttonContainer.appendChild(viewButton);
-        resultDiv.appendChild(buttonContainer);
-        
-        resultsContainer.appendChild(resultDiv);
-    });
+    resultsContainer.appendChild(documentList);
 }
 
-// Build the query (without the need for dynamic filtering during the fetch)
-function buildQuery(searchTerm, limit, offset) {
-    return `select id, name__v, filename__v, document_number__v, lifecycle__v, type__v, subtype__v, classification__v FROM ALLVERSIONS documents FIND('${searchTerm}' SCOPE ALL) LIMIT ${limit} OFFSET ${offset} `;
+
+// Display object search results
+function displayObjectResults() {
+    const objectContainer = document.getElementById('objectResultsContainer');
+    objectContainer.innerHTML = ''; // Clear previous content
+
+    const totalObjectCount = objectResults.reduce((sum, { results }) => sum + results.length, 0);
+
+    // Create a header similar to the one in `displayFilteredResults`
+    const allObjectsHeader = document.createElement('div');
+    allObjectsHeader.classList.add('all-objects-header');
+    allObjectsHeader.innerHTML = `
+        <span>Total objects matching the search keyword:</span>
+        <div class="object-count">${totalObjectCount}</div>
+        <div class="expand-button" onclick="toggleVisibility('allObjectsList', this)">&#8250;</div>
+    `;
+    objectContainer.appendChild(allObjectsHeader);
+
+    const allObjectsList = document.createElement('div');
+    allObjectsList.classList.add('object-results-container');
+    allObjectsList.setAttribute('id', 'allObjectsList');
+    allObjectsList.style.display = 'none'; // Initially hidden
+
+    if (totalObjectCount > 0) {
+        objectResults.forEach(({ objectType, results }) => {
+            if (results.length > 0) {
+                const objectTypeHeader = document.createElement('div');
+                objectTypeHeader.classList.add('object-type-header');
+                objectTypeHeader.innerHTML = `<strong>${objectType}</strong>`;
+                allObjectsList.appendChild(objectTypeHeader);
+
+                results.forEach(result => {
+                    const objectLink = document.createElement('a');
+                    objectLink.href = `https://cors-anywhere.herokuapp.com/https://partnersi-prana4life-quality.veevavault.com/ui/#obj_common/${objectType}/${result.id}`;
+                    objectLink.target = '_blank';
+                    objectLink.textContent = result.name__v || 'Unnamed Object';
+                    allObjectsList.appendChild(objectLink);
+                    allObjectsList.appendChild(document.createElement('br'));
+                });
+            }
+        });
+    } else {
+        allObjectsList.innerHTML = '<p>No object results found.</p>';
+    }
+
+    objectContainer.appendChild(allObjectsList);
 }
+
+// Toggle visibility of document or object lists
+function toggleVisibility(listId, expandButton) {
+    const list = document.getElementById(listId);
+
+    if (list.style.display === 'none') {
+        list.style.display = 'block';
+        expandButton.classList.add('expanded');
+    } else {
+        list.style.display = 'none';
+        expandButton.classList.remove('expanded');
+    }
+}
+
 
 </script>
-
-  
-  
-  
+ 
 </body>
 </html>
