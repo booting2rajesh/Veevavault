@@ -211,8 +211,33 @@
         }
 
 
+#qdocsearchResultsContainer
+ {
+		
+		max-height: 100%; /* Constrain to grid item height */
+    overflow-y: auto; /* Enable scrolling for excess content */
+    padding-right: 15px; /* Add padding to prevent content from hiding under scrollbar */
+    box-sizing: border-box;
+		
+		
+            margin: 15px; /* Adds some margin for spacing */
+        }
+
 
  #objectResultsContainer {
+		
+		max-height: 100%; /* Constrain to grid item height */
+    overflow-y: auto; /* Enable scrolling for excess content */
+    padding-right: 15px; /* Add padding to prevent content from hiding under scrollbar */
+    box-sizing: border-box;
+		
+		
+            margin: 15px; /* Adds some margin for spacing */
+        }
+
+
+
+#qdocobjectResultsContainer {
 		
 		max-height: 100%; /* Constrain to grid item height */
     overflow-y: auto; /* Enable scrolling for excess content */
@@ -436,7 +461,11 @@
     </div>
 
     
-    <div class="grid-item" id="quadrant2"> QDOCS </div>
+    <div class="grid-item" id="quadrant2"> QDOCS
+
+		<div id="qdocsearchResultsContainer"></div>
+		<div id="qdocobjectResultsContainer"></div>
+	</div>
     <div class="grid-item" id="quadrant3"> CTMS </div>
     <div class="grid-item" id="quadrant4"> eTMF </div>
 </div>
@@ -449,6 +478,7 @@
 
 let metadataData = null; // Stores fetched metadata globally
 let objectResults = []; // Stores fetched object results
+let qdocObjectResults = []; // To Stores fetched Qdoc object results
 let searchTerm = '';
 
 // Array of objects and their corresponding queries to search
@@ -466,6 +496,15 @@ const objectQueries = {
     'qms_scar__v': "select id, name__v FROM qms_scar__v FIND('{searchTerm}')",
     'quality_event__qdm': "select id, name__v,title__v,description__c,justification__qdm,comments__v,severity__qdm,ae_severity__v, object_type__vr.name__v FROM quality_event__qdm FIND('{searchTerm}')"
 };
+
+// QDOCS objects
+
+const qdocsObjectQueries = {
+    'document_change_control__v': "select id, name__v FROM document_change_control__v FIND('{searchTerm}')",
+    'document_change_request__v': "select id, name__v FROM document_change_request__v FIND('{searchTerm}')",
+    'periodic_review__v': "select id, name__v FROM periodic_review__v FIND('{searchTerm}')",
+	'controlled_copy_trace__v': "select id, name__v FROM controlled_copy_trace__v FIND('{searchTerm}')"
+}
 
 // Show loader
 function showLoader() {
@@ -593,6 +632,7 @@ async function fetchObjects(searchTerm, sessionId) {
     objectResults = [];
 
     for (const [objectType, queryTemplate] of Object.entries(objectQueries)) {
+	
         const query = queryTemplate.replace(/{searchTerm}/g, searchTerm);
 
         try {
@@ -607,6 +647,32 @@ async function fetchObjects(searchTerm, sessionId) {
             objectResults.push({
                 objectType: objectType,
                 results: searchResponse.data || []
+            });
+        } catch (error) {
+            console.error(`Object search failed for ${objectType}: ${error.message}`);
+        }
+    }
+	
+	// Fetch QDOCS Objects with searchTerm
+	
+	 qdocobjectResults = [];
+
+    for (const [objectType, queryTemplate] of Object.entries(qdocsObjectQueries)) {
+	
+        const query = queryTemplate.replace(/{searchTerm}/g, searchTerm);
+
+        try {
+            const searchResponse = await fetchWithRetry(getVaultApiUrl(`query?q=${query}`), {
+                headers: {
+                    'Authorization': sessionId,
+                    'X-Requested-With': 'XMLHttpRequest'
+                }
+            });
+
+            console.log(`Response for ${objectType}:`, searchResponse);
+            qdocobjectResults.push({
+                objectType: objectType,
+                qdocresults: searchResponse.data || []
             });
         } catch (error) {
             console.error(`Object search failed for ${objectType}: ${error.message}`);
@@ -644,6 +710,9 @@ function buildQuery(searchTerm, limit, offset) {
 // Display document search results
 function displayFilteredResults(metadataData) {
     const resultsContainer = document.getElementById('searchResultsContainer');
+    const qdocresultsContainer = document.getElementById('qdocsearchResultsContainer');
+	
+	qdocresultsContainer.innerHTML = ''; // Clear previous content
     resultsContainer.innerHTML = ''; // Clear previous content
 
     const results = metadataData.data || [];
@@ -657,6 +726,16 @@ function displayFilteredResults(metadataData) {
         <div class="document-count">${documentCount}</div>
         <div class="expand-button" onclick="toggleVisibility('documentList', this)">&#8250;</div>
     `;
+	// Create a header similar to `displayQDocsObjectResults`
+    const qdocumentHeader = document.createElement('div');
+    qdocumentHeader.classList.add('all-documents-header');
+    qdocumentHeader.innerHTML = `
+        <span>Total documents matching the search keyword:</span>
+        <div class="document-count">${documentCount}</div>
+        <div class="expand-button" onclick="toggleVisibility('qdocumentList', this)">&#8250;</div>
+    `;
+	qdocresultsContainer.appendChild(qdocumentHeader);
+	
     resultsContainer.appendChild(documentHeader);
 
     // Create a container for the document list
@@ -664,6 +743,12 @@ function displayFilteredResults(metadataData) {
     documentList.classList.add('document-results-container'); // Consistent styling
     documentList.setAttribute('id', 'documentList');
     documentList.style.display = 'none'; // Initially hidden
+	
+    // Create a container for the document list
+    const qdocumentList = document.createElement('div');
+    qdocumentList.classList.add('document-results-container'); // Consistent styling
+    qdocumentList.setAttribute('id', 'qdocumentList');
+    qdocumentList.style.display = 'none'; // Initially hidden
 
     if (documentCount > 0) {
         results.forEach(result => {
@@ -677,17 +762,37 @@ function displayFilteredResults(metadataData) {
     } else {
         documentList.innerHTML = '<p>No document results found.</p>';
     }
-
+	
+    if (documentCount > 0) {
+        results.forEach(result => {
+            const qdocumentLink = document.createElement('a');
+            qdocumentLink.href = `https://partnersi-prana4life-quality.veevavault.com/ui/#doc_info/${result.id}/1/0`;
+            qdocumentLink.target = '_blank';
+            qdocumentLink.textContent = result.name__v;
+            qdocumentList.appendChild(qdocumentLink);
+            qdocumentList.appendChild(document.createElement('br'));
+        });
+    } else {
+        qdocumentList.innerHTML = '<p>No document results found.</p>';
+    }
+	qdocresultsContainer.appendChild(qdocumentList);
+	
     resultsContainer.appendChild(documentList);
 }
 
 
 // Display object search results
 function displayObjectResults() {
-    const objectContainer = document.getElementById('objectResultsContainer');
+
+    const objectContainer = document.getElementById('objectResultsContainer'); 
     objectContainer.innerHTML = ''; // Clear previous content
+	
+    const qdocobjectContainer = document.getElementById('qdocobjectResultsContainer'); 
+    qdocobjectContainer.innerHTML = ''; // Clear previous content
 
     const totalObjectCount = objectResults.reduce((sum, { results }) => sum + results.length, 0);
+	//QDOC
+	const totalQdocObjectCount = qdocobjectResults.reduce((sum, { qdocresults }) => sum + qdocresults.length, 0);
 
     // Create a header similar to the one in `displayFilteredResults`
     const allObjectsHeader = document.createElement('div');
@@ -697,12 +802,29 @@ function displayObjectResults() {
         <div class="object-count">${totalObjectCount}</div>
         <div class="expand-button" onclick="toggleVisibility('allObjectsList', this)">&#8250;</div>
     `;
-    objectContainer.appendChild(allObjectsHeader);
-
+	// QDOCS
+	// Create a header similar to the one in `displayFilteredResults`
+    const qallObjectsHeader = document.createElement('div');
+    qallObjectsHeader.classList.add('all-objects-header');
+    qallObjectsHeader.innerHTML = `
+        <span>Total objects matching the search keyword:</span>
+        <div class="object-count">${totalQdocObjectCount}</div>
+        <div class="expand-button" onclick="toggleVisibility('qallObjectsList', this)">&#8250;</div>
+    `;
+    
+	qdocobjectContainer.appendChild(qallObjectsHeader);
+	objectContainer.appendChild(allObjectsHeader);
+	
     const allObjectsList = document.createElement('div');
     allObjectsList.classList.add('object-results-container');
     allObjectsList.setAttribute('id', 'allObjectsList');
     allObjectsList.style.display = 'none'; // Initially hidden
+	
+	//QDOCS
+	const qallObjectsList = document.createElement('div');
+    qallObjectsList.classList.add('object-results-container');
+    qallObjectsList.setAttribute('id', 'qallObjectsList');
+    qallObjectsList.style.display = 'none'; // Initially hidden
 
     if (totalObjectCount > 0) {
         objectResults.forEach(({ objectType, results }) => {
@@ -725,8 +847,34 @@ function displayObjectResults() {
     } else {
         allObjectsList.innerHTML = '<p>No object results found.</p>';
     }
+	
+	// QDOCS 
+	if (totalQdocObjectCount > 0) {
+        qdocobjectResults.forEach(({ objectType, qdocresults }) => {
+            if (qdocresults.length > 0) {
+                const qobjectTypeHeader = document.createElement('div');
+                qobjectTypeHeader.classList.add('object-type-header');
+                qobjectTypeHeader.innerHTML = `<strong>${objectType}</strong>`;
+                qallObjectsList.appendChild(qobjectTypeHeader);
 
-    objectContainer.appendChild(allObjectsList);
+                qdocresults.forEach(result => {
+                    const qobjectLink = document.createElement('a');
+                    qobjectLink.href = `https://cors-anywhere.herokuapp.com/https://partnersi-prana4life-quality.veevavault.com/ui/#obj_common/${objectType}/${result.id}`;
+                    qobjectLink.target = '_blank';
+                    qobjectLink.textContent = result.name__v || 'Unnamed Object';
+                    qallObjectsList.appendChild(qobjectLink);
+                    qallObjectsList.appendChild(document.createElement('br'));
+                });
+            }
+        });
+    } else {
+        qallObjectsList.innerHTML = '<p>No object results found.</p>';
+    }
+
+    
+	qdocobjectContainer.appendChild(qallObjectsList);
+	
+	objectContainer.appendChild(allObjectsList);
 }
 
 // Toggle visibility of document or object lists
