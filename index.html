@@ -453,9 +453,11 @@
 		
 
 <div class="grid-container">
+
     <!-- Quadrant 1: Results Section -->
+	
     <div class="grid-item" id="resultsQuadrant"> QMS
-        <div id="searchResultsContainer"></div>
+        <div id="searchResultsContainer"></div> 
 		<div id="objectResultsContainer"></div>
 
     </div>
@@ -476,9 +478,9 @@
 
 <script>
 
-let metadataData = null; // Stores fetched metadata globally
-let objectResults = []; // Stores fetched object results
-let qdocObjectResults = []; // To Stores fetched Qdoc object results
+let metadataData = null;          // Stores fetched metadata globally
+let objectResults = [];          // Stores fetched object results
+let qdocObjectResults = [];     // To Stores fetched Qdoc object results
 let searchTerm = '';
 
 // Array of objects and their corresponding queries to search
@@ -736,7 +738,7 @@ function displayFilteredResults(metadataData) {
     `;
 	qdocresultsContainer.appendChild(qdocumentHeader);
 	
-    resultsContainer.appendChild(documentHeader);
+  //  resultsContainer.appendChild(documentHeader);
 
     // Create a container for the document list
     const documentList = document.createElement('div');
@@ -777,7 +779,7 @@ function displayFilteredResults(metadataData) {
     }
 	qdocresultsContainer.appendChild(qdocumentList);
 	
-    resultsContainer.appendChild(documentList);
+    //resultsContainer.appendChild(documentList);
 }
 
 
